@@ -47,6 +47,12 @@ public class BabelShark {
         languages.put(language.getId(), language);
     }
 
+    public String getDefaultType() {
+        if (!languages.isEmpty())
+            return languages.keySet().iterator().next();
+        return null;
+    }
+    
     private ObjectReader getReader(String contentType) {
         contentType = normalizeContentType(contentType);
         return readers.get(contentType);
@@ -120,5 +126,9 @@ public class BabelShark {
         Output output = new Output(stream, contentType);
         write(output, value);
         return stream.toByteArray();
+    }
+
+    public String getMimeType(String type) {
+        return languages.get(type).getContentTypes()[0];
     }
 }
