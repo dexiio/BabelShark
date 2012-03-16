@@ -13,13 +13,6 @@ import java.util.Map;
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class BabelShark {
-    public static final String[] CONTENT_JSON = {"application/json","text/json"};
-    public static final String[] CONTENT_XML = {"text/xml"};
-    public static final String[] CONTENT_CSV = {"text/csv"};
-    public static final String[] CONTENT_HTML = {"text/html"};
-    public static final String[] CONTENT_JAVAS = {"text/java-serialized"};
-    public static final String[] CONTENT_PHPS = {"text/php-serialized"};
-    
     private static final BabelShark instance = new BabelShark();
     private BabelShark() {
         
