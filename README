@@ -1,0 +1,32 @@
+Simple to use framework for converting between java beans and string representations like JSON, XML etc. 
+
+Binary protocols could also be implemented.
+
+Usage:
+
+To set up simple handling of JSON use the singleton BabelShark class:
+
+BabelShark.getInstance().register(new JsonLanguage());
+
+This will register the json language (built-in - using jackson json processor) within babelshark and you can now start
+(de)serializing json whereever you might need to like this:
+
+BabelShark bs = BabelShark.getInstance();
+
+List<Boolean> list = bs.read("[true,false]","json",List.class);
+
+and 
+
+String json = bs.writeToString(list,"json");
+
+
+All protocols / formats use the same simple set of annotations to determine field names and attributes. Meaning you have a
+much cleaner control over your beans
+
+
+To-Do:
+- Implement XML language using JAXB
+- Implement Hessian language
+- Implement serialized Java language
+- Implement serialized PHP language
+- Implement Spring view and message converter
