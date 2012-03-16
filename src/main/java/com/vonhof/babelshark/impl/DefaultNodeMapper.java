@@ -11,6 +11,7 @@ import com.vonhof.babelshark.node.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Default mapper for nodes til values and values to nodes
@@ -193,10 +194,17 @@ public class DefaultNodeMapper implements NodeMapper {
         
         if (ReflectionUtils.isMappable(type.getType())) {
             ObjectNode node = new ObjectNode();
-            MappedBean<Object> map = beanMapper.getMap(type.getType());
-            for (String field:map.getFieldList()) {
-                Object value = map.getField(field).get(instance);
-                node.put(field,toNode(value));
+            if (type.isMap()) {
+                Map<Object,Object> map = (Map<Object,Object>)instance;
+                for (Entry<Object,Object> entry:map.entrySet()) {
+                    node.put(String.valueOf(entry.getKey()),toNode(entry.getValue()));
+                }
+            } else {
+                MappedBean<Object> map = beanMapper.getMap(type.getType());
+                for (String field:map.getFieldList()) {
+                    Object value = map.getField(field).get(instance);
+                    node.put(field,toNode(value));
+                }
             }
             return node;
         } 
