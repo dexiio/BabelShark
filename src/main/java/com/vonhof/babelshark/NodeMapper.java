@@ -9,7 +9,7 @@ import com.vonhof.babelshark.node.SharkNode;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public interface NodeMapper {
     public <T> T readAs(SharkNode obj, Class<T> type) throws MappingException;

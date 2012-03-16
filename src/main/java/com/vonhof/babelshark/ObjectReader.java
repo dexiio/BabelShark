@@ -5,7 +5,7 @@ import java.io.IOException;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public interface ObjectReader {
     /**

@@ -2,7 +2,7 @@ package com.vonhof.babelshark;
 
 /**
  * A convenience base class for implementing BabelShark languages
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 abstract public class SharkLanguageBase implements SharkLanguage{
     private final String id;

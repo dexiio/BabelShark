@@ -2,7 +2,7 @@ package com.vonhof.babelshark.node;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 abstract public class SharkNode {
     private final NodeType type;

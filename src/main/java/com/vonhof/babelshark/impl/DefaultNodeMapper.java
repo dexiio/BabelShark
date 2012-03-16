@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 /**
  * Default mapper for nodes til values and values to nodes
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public class DefaultNodeMapper implements NodeMapper {
     

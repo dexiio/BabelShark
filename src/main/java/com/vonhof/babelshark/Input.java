@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 /**
  * Class that wraps inputstream with contentType
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public class Input {
     private final InputStream input;

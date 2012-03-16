@@ -16,10 +16,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public class JsonLanguage extends SharkLanguageBase {
-    
     private final JsonFactory jsonFactory = new JsonFactory(); 
     private final ObjectMapper om = new ObjectMapper(jsonFactory);
     private final Reader reader = new Reader();

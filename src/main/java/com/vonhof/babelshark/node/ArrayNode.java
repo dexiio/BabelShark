@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public final class ArrayNode extends SharkNode implements Iterable<SharkNode> {
     private final List<SharkNode> children = new ArrayList<SharkNode>();

@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public class ReflectionUtils {
     public static boolean isCollection(Class type) {

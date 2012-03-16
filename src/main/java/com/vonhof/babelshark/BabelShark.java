@@ -2,7 +2,6 @@ package com.vonhof.babelshark;
 
 import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.impl.DefaultNodeMapper;
-import com.vonhof.babelshark.node.ArrayNode;
 import com.vonhof.babelshark.node.SharkNode;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,7 +10,7 @@ import java.util.Map;
 
 /**
  * Singleton instance of the babelshark engine
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public class BabelShark {
     public static final String[] CONTENT_JSON = {"application/json","text/json"};
@@ -69,6 +68,10 @@ public class BabelShark {
         return convert(map, clz);
     }
     
+    public <T> T read(String raw,String type,Class<T> clz) throws MappingException, IOException {
+        return read(new Input(raw, type),clz);
+    }
+    
     public <T> T convert(SharkNode node,Class<T> clz) throws MappingException {
         return mapper.readAs(node,clz);
     }
@@ -85,14 +88,14 @@ public class BabelShark {
         return contentType.toLowerCase().trim();
     }
 
-    public String writeToString(SharkNode node, String contentType) throws MappingException, IOException {
-        return new String(writeToByteArray(node, contentType));
+    public String writeToString(Object value, String contentType) throws MappingException, IOException {
+        return new String(writeToByteArray(value, contentType));
     }
     
-    public byte[] writeToByteArray(SharkNode node, String contentType) throws MappingException, IOException {
+    public byte[] writeToByteArray(Object value, String contentType) throws MappingException, IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Output output = new Output(stream, contentType);
-        write(output,node);
+        write(output,value);
         return stream.toByteArray();
     }
 }

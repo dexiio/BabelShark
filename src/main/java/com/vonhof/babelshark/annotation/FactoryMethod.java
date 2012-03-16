@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  * Allows you to provide a method that takes a single argument of ObjectNode - and lets you return a new instance
  * of the class.
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 @Documented
 @Target(value={ElementType.TYPE})

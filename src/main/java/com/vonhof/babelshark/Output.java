@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 /**
  * Class that wraps outputstream with contentType
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public class Output {
     private final OutputStream output;

@@ -7,7 +7,7 @@ import java.lang.reflect.Type;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public final class SharkType<T,U> {
 

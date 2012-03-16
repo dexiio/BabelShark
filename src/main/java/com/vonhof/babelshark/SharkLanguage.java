@@ -3,7 +3,7 @@ package com.vonhof.babelshark;
 /**
  * Interface usable to provide a single instance that provides all the information needed for adding a language / format 
  * to BabelShark
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public interface SharkLanguage {
     public String getId();

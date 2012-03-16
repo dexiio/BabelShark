@@ -2,7 +2,7 @@ package com.vonhof.babelshark.node;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public final class ValueNode<T> extends SharkNode {
     private T value;

@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public final class ObjectNode extends SharkNode {
     private final Map<String,SharkNode> fields = new LinkedHashMap<String, SharkNode>();
