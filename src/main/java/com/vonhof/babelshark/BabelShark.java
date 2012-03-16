@@ -3,9 +3,11 @@ package com.vonhof.babelshark;
 import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.impl.DefaultNodeMapper;
 import com.vonhof.babelshark.node.SharkNode;
+import com.vonhof.babelshark.node.SharkType;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,21 +55,45 @@ public class BabelShark {
         return writers.get(contentType);
     }
     
-    public <T> T read(Input input,Class<T> clz) throws MappingException, IOException {
+    public <T> T read(Input input,SharkType<T,?> type) throws MappingException, IOException {
         ObjectReader reader = getReader(input.getContentType());
         if (reader == null)
             throw new MappingException(String.format("Unknown content type:",input.getContentType()));
         SharkNode map = reader.read(input);
-        return convert(map, clz);
+        return readAsValue(map, type);
+    }
+    
+    public <T> T read(Input input,Class<T> clz) throws MappingException, IOException {
+        return read(input, SharkType.get(clz));
     }
     
     public <T> T read(String raw,String type,Class<T> clz) throws MappingException, IOException {
         return read(new Input(raw, type),clz);
     }
     
-    public <T> T convert(SharkNode node,Class<T> clz) throws MappingException {
+    public <T> T readAsValue(SharkNode node,SharkType<T,?> type) throws MappingException {
+        return mapper.readAs(node,type);
+    }
+    
+    public <T> T readAsValue(SharkNode node,Class<T> clz) throws MappingException {
         return mapper.readAs(node,clz);
     }
+    
+    public <T> List<T> readAsList(SharkNode node,SharkType<List,T> type) throws MappingException {
+        return mapper.readAs(node,type);
+    }
+    public <T> List<T> readAsList(SharkNode node,Class<T> clz) throws MappingException {
+        return mapper.readAs(node,SharkType.forCollection(List.class, clz));
+    }
+    
+    public <T> Map<String,T> readAsMap(SharkNode node,SharkType<Map,T> type) throws MappingException {
+        return mapper.readAs(node,type);
+    }
+    public <T> Map<String,T> readAsMap(SharkNode node,Class<T> clz) throws MappingException {
+        return mapper.readAs(node,SharkType.forMap(Map.class, clz));
+    }
+    
+    
     
     public void write(Output output,Object value) throws MappingException, IOException {
         ObjectWriter writer = getWriter(output.getContentType());

@@ -35,11 +35,11 @@ public class ReflectionUtils {
     public static boolean isInstantiatable(Class type) {
          return !type.isInterface() 
                  && !Modifier.isAbstract( type.getModifiers()) 
-                 && !type.equals(Object.class)
-                 && !type.equals(Enum.class)
                  && !type.isAnnotation()
                  && !type.isArray()
-                 && !type.isPrimitive();
+                 && !type.isPrimitive()
+                 && !type.equals(Object.class)
+                 && !Enum.class.isAssignableFrom(type);
     }
     
     public static boolean isBean(Class type) {
