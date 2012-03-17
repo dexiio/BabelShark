@@ -91,6 +91,7 @@ public class DefaultNodeMapper implements NodeMapper {
         final T out = map.newInstance(node);
         for(String field:node.getFields()) {
             final ObjectField oField = map.getField(field);
+            if (!oField.hasSetter()) continue;
             Object value = readAs(node.get(field),oField.getType());
             oField.set(out,value);
         }
@@ -203,7 +204,9 @@ public class DefaultNodeMapper implements NodeMapper {
             } else {
                 MappedBean<Object> map = beanMapper.getMap(type.getType());
                 for (String field:map.getFieldList()) {
-                    Object value = map.getField(field).get(instance);
+                    ObjectField oField = map.getField(field);
+                    if (!oField.hasGetter()) continue;
+                    Object value = oField.get(instance);
                     node.put(field,toNode(value));
                 }
             }

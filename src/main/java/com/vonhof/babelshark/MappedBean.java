@@ -50,6 +50,7 @@ public class MappedBean<T> {
 
     public ObjectField addField(String name,Field field,Method getter,Method setter) {
         final ObjectField oField = new ObjectField(field, getter, setter);
+        
         this.fields.put(name,oField);
         return oField;
     }
@@ -147,10 +148,21 @@ public class MappedBean<T> {
             this.setter = setter;
         }
         
+        public boolean hasGetter() {
+            return getter != null 
+                    || Modifier.isPublic(field.getModifiers());
+        }
+        
+        public boolean hasSetter() {
+            return setter != null 
+                    || Modifier.isPublic(field.getModifiers());
+        }
+        
         public Object get(T obj) throws MappingException {
             try {
-                if (getter == null)
+                if (getter == null) {
                     return field.get(obj);
+                }
                 return getter.invoke(obj);
             } catch (Exception ex) {
                 throw new MappingException(ex);

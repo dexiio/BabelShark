@@ -57,6 +57,8 @@ public class DefaultObjectMapperTest extends TestCase {
         @Ignore
         private String ignoredField = "ignored value";
         
+        private String test = "not available";
+        
         @Name(value="subs",generics={TestClass.class})
         public List<TestClass> children = new ArrayList<TestClass>();
 

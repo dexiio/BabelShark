@@ -37,9 +37,9 @@ public class DefaultBeanMapper implements BeanMapper {
             if (ignoreField(type, field)) 
                 continue;
             final String fieldName = getFieldName(type, field);
-            obj.addField(fieldName, field, 
-                    getGetter(type, field), 
-                    getSetter(type, field));
+            Method getter = getGetter(type, field);
+            Method setter = getSetter(type, field);
+            obj.addField(fieldName, field,getter,setter);
         }
         
         cache.put(type,obj);
