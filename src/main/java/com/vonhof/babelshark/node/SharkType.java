@@ -1,6 +1,6 @@
 package com.vonhof.babelshark.node;
 
-import com.vonhof.babelshark.ReflectionUtils;
+import com.vonhof.babelshark.ReflectUtils;
 import com.vonhof.babelshark.annotation.Name;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -104,11 +104,11 @@ public final class SharkType<T,U> {
         return get(type,Object.class);
     }
     public static <T,U> SharkType<T,U> get(Class<T> type,Class<U> valueType) {
-        if (ReflectionUtils.isMap(type)) {
+        if (ReflectUtils.isMap(type)) {
             return forMap(type, valueType);
         }
         
-        if (ReflectionUtils.isCollection(type)) {
+        if (ReflectUtils.isCollection(type)) {
             return forCollection(type, valueType);
         }
         
@@ -127,12 +127,12 @@ public final class SharkType<T,U> {
     }
     
     public static SharkType get(Class clz,Type type) {
-        Type[] genericTypes = ReflectionUtils.getGenericType(type);
+        Type[] genericTypes = ReflectUtils.getGenericType(type);
         Class valueType = Object.class;
-        if (ReflectionUtils.isMap(clz) && genericTypes.length > 1) {
+        if (ReflectUtils.isMap(clz) && genericTypes.length > 1) {
             valueType = (Class) genericTypes[1];
         }
-        if (ReflectionUtils.isCollection(clz) && genericTypes.length > 0) {
+        if (ReflectUtils.isCollection(clz) && genericTypes.length > 0) {
             valueType = (Class) genericTypes[0];
         }
         return get(clz,valueType);

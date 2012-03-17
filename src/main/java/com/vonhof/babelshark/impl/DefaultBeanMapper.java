@@ -2,7 +2,7 @@ package com.vonhof.babelshark.impl;
 
 import com.vonhof.babelshark.BeanMapper;
 import com.vonhof.babelshark.MappedBean;
-import com.vonhof.babelshark.ReflectionUtils;
+import com.vonhof.babelshark.ReflectUtils;
 import com.vonhof.babelshark.annotation.Ignore;
 import com.vonhof.babelshark.annotation.Name;
 import com.vonhof.babelshark.exception.MappingException;
@@ -21,10 +21,10 @@ public class DefaultBeanMapper implements BeanMapper {
             return obj;
         
         //Not a bean
-        if (!ReflectionUtils.isBean(type))
+        if (!ReflectUtils.isBean(type))
             throw new MappingException(String.format("Cannot get bean map for class %s. Not a bean!",type.getName()));
         
-        if (!ReflectionUtils.isInstantiatable(type)) {
+        if (!ReflectUtils.isInstantiatable(type)) {
             throw new MappingException(String.format("Cannot instantiate bean: %s",type.getName()));
         }
         

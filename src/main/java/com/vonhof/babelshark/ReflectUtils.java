@@ -1,6 +1,8 @@
 package com.vonhof.babelshark;
 
 import java.lang.reflect.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -9,7 +11,7 @@ import java.util.Map;
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
-public class ReflectionUtils {
+public class ReflectUtils {
     public static boolean isCollection(Class type) {
         return (Collection.class.isAssignableFrom(type) || type.isArray());
     }
@@ -29,7 +31,15 @@ public class ReflectionUtils {
     public static boolean isPrimitive(Class type) {
         return type.isPrimitive() 
                 || type.equals(String.class) 
-                || type.equals(Date.class) 
+                || type.equals(Boolean.class) 
+                || type.equals(Class.class) 
+                || type.equals(Date.class)
+                || type.equals(Integer.class) 
+                || type.equals(Float.class) 
+                || type.equals(Double.class) 
+                || type.equals(Long.class) 
+                || type.equals(BigDecimal.class) 
+                || type.equals(BigInteger.class) 
                 || Enum.class.isAssignableFrom(type);
     }
     public static boolean isInstantiatable(Class type) {

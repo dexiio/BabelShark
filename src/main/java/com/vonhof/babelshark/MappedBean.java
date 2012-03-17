@@ -115,7 +115,7 @@ public class MappedBean<T> {
                 return;
             }
             
-            if (ReflectionUtils.isMapOrCollection(field.getType())) {
+            if (ReflectUtils.isMapOrCollection(field.getType())) {
                 //Attempt to get the list or map value types
                 if (getter != null) {
                     type = SharkType.get(field.getType(),getter.getGenericReturnType());

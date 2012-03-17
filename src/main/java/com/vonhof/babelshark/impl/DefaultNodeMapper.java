@@ -1,10 +1,7 @@
 package com.vonhof.babelshark.impl;
 
-import com.vonhof.babelshark.BeanMapper;
-import com.vonhof.babelshark.MappedBean;
+import com.vonhof.babelshark.*;
 import com.vonhof.babelshark.MappedBean.ObjectField;
-import com.vonhof.babelshark.NodeMapper;
-import com.vonhof.babelshark.ReflectionUtils;
 import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.node.SharkNode.NodeType;
 import com.vonhof.babelshark.node.*;
@@ -39,7 +36,7 @@ public class DefaultNodeMapper implements NodeMapper {
         if (SharkNode.class.isAssignableFrom(type.getType()))
             return (T) node;
         
-        if (ReflectionUtils.isPrimitive(type.getType())) {
+        if (ReflectUtils.isPrimitive(type.getType())) {
             if (!node.is(NodeType.VALUE))
                 throw new MappingException(String.format("Could not convert %s to %s",node,type));
 
@@ -47,7 +44,7 @@ public class DefaultNodeMapper implements NodeMapper {
             return readPrimitive(valueNode.getValue(),type.getType());
         }
         
-        if (ReflectionUtils.isMappable(type.getType())) {
+        if (ReflectUtils.isMappable(type.getType())) {
             if (!node.is(NodeType.MAP))
                 throw new MappingException(String.format("Could not convert %s to %s",node,type));
             
@@ -71,7 +68,7 @@ public class DefaultNodeMapper implements NodeMapper {
         try {
             
             Class clz = type.getType();
-            if (!ReflectionUtils.isInstantiatable(clz)) {
+            if (!ReflectUtils.isInstantiatable(clz)) {
                 if (Map.class.isAssignableFrom(clz) || Object.class.equals(clz))
                     clz = LinkedHashMap.class;
                 else
@@ -104,7 +101,7 @@ public class DefaultNodeMapper implements NodeMapper {
         Collection<V> out = null;
         try {
             Class clz = type.getType();
-            if (!ReflectionUtils.isInstantiatable(clz)) {
+            if (!ReflectUtils.isInstantiatable(clz)) {
                 if (Set.class.isAssignableFrom(clz))
                     clz = HashSet.class;
                 else if (List.class.isAssignableFrom(clz))
@@ -128,7 +125,11 @@ public class DefaultNodeMapper implements NodeMapper {
         if (type.isInstance(o))
             return (T)o;
         if (String.class.equals(o)) {
-            return stringToPrimitive((String)o, type);
+            try {
+                return ConvertUtils.convert((String)o, type);
+            } catch(RuntimeException ex) {
+                throw new MappingException(ex);
+            }
         }
         if (o instanceof Number) {
             Number number = (Number) o;
@@ -149,7 +150,7 @@ public class DefaultNodeMapper implements NodeMapper {
     protected <T> T stringToPrimitive(String str,Class<T> type) throws MappingException {
         if (str == null)
             return null;
-        if (!ReflectionUtils.isPrimitive(type))
+        if (!ReflectUtils.isPrimitive(type))
             throw new MappingException(String.format("Not a primitive: %s",type.getName()));
         if (String.class.equals(type))
             return (T) str;
@@ -188,11 +189,11 @@ public class DefaultNodeMapper implements NodeMapper {
         
         SharkType type = SharkType.get(instance.getClass());
         
-        if (ReflectionUtils.isPrimitive(type.getType())) {
+        if (ReflectUtils.isPrimitive(type.getType())) {
             return new ValueNode(instance);
         }
         
-        if (ReflectionUtils.isMappable(type.getType())) {
+        if (ReflectUtils.isMappable(type.getType())) {
             ObjectNode node = new ObjectNode();
             if (type.isMap()) {
                 Map<Object,Object> map = (Map<Object,Object>)instance;

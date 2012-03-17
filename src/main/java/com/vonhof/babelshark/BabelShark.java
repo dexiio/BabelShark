@@ -129,6 +129,10 @@ public class BabelShark {
     }
 
     public String getMimeType(String type) {
-        return languages.get(type).getContentTypes()[0];
+        String out = languages.get(type) != null ? 
+                            languages.get(type).getContentTypes()[0] : null;
+        if (out == null)
+            return type;
+        return out;
     }
 }
