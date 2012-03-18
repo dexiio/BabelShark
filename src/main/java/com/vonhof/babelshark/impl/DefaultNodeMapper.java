@@ -1,14 +1,14 @@
 package com.vonhof.babelshark.impl;
 
-import com.vonhof.babelshark.*;
 import com.vonhof.babelshark.MappedBean.ObjectField;
+import com.vonhof.babelshark.*;
 import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.node.SharkNode.NodeType;
 import com.vonhof.babelshark.node.*;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.*;
 import java.util.Map.Entry;
+import java.util.*;
 
 /**
  * Default mapper for nodes til values and values to nodes
@@ -134,13 +134,13 @@ public class DefaultNodeMapper implements NodeMapper {
         }
         if (o instanceof Number) {
             Number number = (Number) o;
-            if (Integer.class.equals(type))
+            if (Integer.class.equals(type) || int.class.equals(type))
                 return (T) new Integer(number.intValue());
-            if (Float.class.equals(type))
+            if (Float.class.equals(type) || float.class.equals(type))
                 return (T) new Float(number.floatValue());
-            if (Double.class.equals(type))
+            if (Double.class.equals(type) || double.class.equals(type))
                 return (T) new Double(number.doubleValue());
-            if (Long.class.equals(type))
+            if (Long.class.equals(type) || long.class.equals(type))
                 return (T) new Long(number.longValue());
             if (Date.class.equals(type))
                 return (T) new Date(number.longValue());
@@ -187,7 +187,8 @@ public class DefaultNodeMapper implements NodeMapper {
     public SharkNode toNode(Object instance) throws MappingException {
         if (instance instanceof SharkNode)
             return (SharkNode) instance;
-        
+        if (instance == null)
+            return new ValueNode(null);
         SharkType type = SharkType.get(instance.getClass());
         
         if (ReflectUtils.isPrimitive(type.getType())) {

@@ -66,7 +66,7 @@ public class BabelShark {
     public <T> T read(Input input, SharkType<T, ?> type) throws MappingException, IOException {
         ObjectReader reader = getReader(input.getContentType());
         if (reader == null) {
-            throw new MappingException(String.format("Unknown content type:", input.getContentType()));
+            throw new MappingException(String.format("Unknown content type: %s", input.getContentType()));
         }
         SharkNode map = reader.read(input);
         return readAsValue(map, type);

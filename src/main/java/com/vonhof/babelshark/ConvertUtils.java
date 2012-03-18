@@ -1,5 +1,7 @@
 package com.vonhof.babelshark;
 
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
@@ -19,15 +21,15 @@ public class ConvertUtils {
             throw new RuntimeException(String.format("Not a primitive: %s",type.getName()));
         if (String.class.equals(type))
             return (T) str;
-        if (Boolean.class.equals(type))
+        if (boolean.class.equals(type) || Boolean.class.equals(type))
             return (T) Boolean.valueOf(str);
-        if (Integer.class.equals(type))
+        if (int.class.equals(type) || Integer.class.equals(type))
             return (T) Integer.valueOf(str);
-        if (Float.class.equals(type))
+        if (float.class.equals(type) || Float.class.equals(type))
             return (T) Float.valueOf(str);
-        if (Double.class.equals(type))
+        if (double.class.equals(type) || Double.class.equals(type))
             return (T) Double.valueOf(str);
-        if (Long.class.equals(type))
+        if (long.class.equals(type) || Long.class.equals(type))
             return (T) Long.valueOf(str);
         if (Class.class.equals(type))
             try {
@@ -49,14 +51,31 @@ public class ConvertUtils {
                 throw new RuntimeException(String.format("Could not read date string: %s",str), ex);
             }
         }
+        if (Timestamp.class.equals(type)) {
+            try {
+                Date time = DateFormat.getTimeInstance().parse(str);
+                return (T) new Timestamp(time.getTime());
+            } catch (ParseException ex) {
+                throw new RuntimeException(String.format("Could not read date string: %s",str), ex);
+            }
+        }
+        if (Time.class.equals(type)) {
+            try {
+                Date time = DateFormat.getTimeInstance().parse(str);
+                return (T) new Time(time.getTime());
+            } catch (ParseException ex) {
+                throw new RuntimeException(String.format("Could not read date string: %s",str), ex);
+            }
+        }
+        
         throw new RuntimeException(String.format("Did not recognize type: %s",type.getName()));
     }
     public static <T extends Number> T convert(Number number,Class<T> type) {
-        if (Integer.class.equals(type))
+        if (Integer.class.equals(type) || int.class.equals(type))
             return (T) new Integer(number.intValue());
-        if (Float.class.equals(type))
+        if (Float.class.equals(type) || float.class.equals(type))
             return (T) new Float(number.floatValue());
-        if (Long.class.equals(type))
+        if (Long.class.equals(type) || long.class.equals(type))
             return (T) new Long(number.longValue());
         return (T) new Double(number.doubleValue());
     }

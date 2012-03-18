@@ -3,6 +3,8 @@ package com.vonhof.babelshark;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -31,13 +33,20 @@ public class ReflectUtils {
     public static boolean isPrimitive(Class type) {
         return type.isPrimitive() 
                 || type.equals(String.class) 
-                || type.equals(Boolean.class) 
                 || type.equals(Class.class) 
                 || type.equals(Date.class)
+                || type.equals(Timestamp.class)
+                || type.equals(Time.class)
+                || type.equals(Boolean.class) 
                 || type.equals(Integer.class) 
                 || type.equals(Float.class) 
                 || type.equals(Double.class) 
                 || type.equals(Long.class) 
+                || type.equals(boolean.class) 
+                || type.equals(int.class) 
+                || type.equals(float.class) 
+                || type.equals(double.class) 
+                || type.equals(long.class) 
                 || type.equals(BigDecimal.class) 
                 || type.equals(BigInteger.class) 
                 || Enum.class.isAssignableFrom(type);
