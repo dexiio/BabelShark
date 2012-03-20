@@ -215,10 +215,18 @@ public class DefaultNodeMapper implements NodeMapper {
         } 
         if (type.isCollection()) {
             ArrayNode node = new ArrayNode();
-            Collection list = (Collection) instance;
-            for (Object value:list) {
-                node.add(toNode(value));
+            if (instance.getClass().isArray()) {
+                Object[] list = (Object[]) instance;
+                for (Object value:list) {
+                    node.add(toNode(value));
+                }
+            } else {
+                Collection list = (Collection) instance;
+                for (Object value:list) {
+                    node.add(toNode(value));
+                }
             }
+            
             return node;
         }
         

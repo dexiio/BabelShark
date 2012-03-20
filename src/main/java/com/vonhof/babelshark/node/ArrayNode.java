@@ -22,6 +22,8 @@ public final class ArrayNode extends SharkNode implements Iterable<SharkNode> {
     }
     
     public SharkNode get(int i) {
+        if (children.size() <= i)
+            return null;
         return children.get(i);
     }
 

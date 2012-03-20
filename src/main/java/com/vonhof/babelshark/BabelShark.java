@@ -48,11 +48,14 @@ public class BabelShark {
     }
 
     public String getDefaultType() {
-        if (!languages.isEmpty())
-            return languages.keySet().iterator().next();
+        if (!languages.isEmpty()) {
+            return languages.keySet().
+                    iterator().
+                    next();
+        }
         return null;
     }
-    
+
     private ObjectReader getReader(String contentType) {
         contentType = normalizeContentType(contentType);
         return readers.get(contentType);
@@ -114,7 +117,8 @@ public class BabelShark {
     }
 
     private static String normalizeContentType(String contentType) {
-        return contentType.toLowerCase().trim();
+        return contentType.toLowerCase().
+                trim();
     }
 
     public String writeToString(Object value, String contentType) throws MappingException, IOException {
@@ -129,10 +133,11 @@ public class BabelShark {
     }
 
     public String getMimeType(String type) {
-        String out = languages.get(type) != null ? 
-                            languages.get(type).getContentTypes()[0] : null;
-        if (out == null)
+        String out = languages.get(type) != null
+                        ? languages.get(type).getContentTypes()[0] : null;
+        if (out == null) {
             return type;
+        }
         return out;
     }
 }
