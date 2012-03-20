@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import java.util.*;
 
 /**
- * Default mapper for nodes til values and values to nodes
+ * Default mapper for nodes to values and values to nodes
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class DefaultNodeMapper implements NodeMapper {
