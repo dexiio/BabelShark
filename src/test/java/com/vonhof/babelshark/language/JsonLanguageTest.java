@@ -25,7 +25,7 @@ public class JsonLanguageTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        BabelShark.getInstance().register(new JsonLanguage());
+        BabelShark.register(new JsonLanguage());
     }
     
     @Override
@@ -35,14 +35,14 @@ public class JsonLanguageTest extends TestCase {
 
     public void testCanReadSimpleJson() throws MappingException, IOException {
         Input input = new Input(JSON_SIMPLE, "json");
-        ArrayNode result = BabelShark.getInstance().read(input,ArrayNode.class);
+        ArrayNode result = BabelShark.read(input,ArrayNode.class);
         assertEquals(new ValueNode(true),result.get(0));
         assertEquals(new ValueNode(false),result.get(1));
     }
     
     public void testCanReadJsonObject() throws MappingException, IOException {
         Input input = new Input(JSON_OBJECT, "json");
-        ObjectNode result = BabelShark.getInstance().read(input,ObjectNode.class);
+        ObjectNode result = BabelShark.read(input,ObjectNode.class);
         
         assertEquals(new ValueNode("Some id"),result.get("_id"));
         assertEquals(new ValueNode("some name"),result.get("name"));
@@ -55,7 +55,7 @@ public class JsonLanguageTest extends TestCase {
         ArrayNode array = new ArrayNode();
         array.add(true,false);
         
-        String json = BabelShark.getInstance().writeToString(array,"json");
+        String json = BabelShark.writeToString(array,"json");
         assertEquals(JSON_SIMPLE,json);
     }
     
@@ -66,7 +66,7 @@ public class JsonLanguageTest extends TestCase {
         obj.put("active",true);
         obj.put("visits",123);
         
-        String json = BabelShark.getInstance().writeToString(obj,"json");
+        String json = BabelShark.writeToString(obj,"json");
         assertEquals(JSON_OBJECT,json);
     }
 }

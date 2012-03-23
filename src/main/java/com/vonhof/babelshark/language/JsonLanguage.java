@@ -1,6 +1,7 @@
 package com.vonhof.babelshark.language;
 
 import com.vonhof.babelshark.*;
+import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.node.ArrayNode;
 import com.vonhof.babelshark.node.ObjectNode;
 import com.vonhof.babelshark.node.SharkNode;
@@ -13,6 +14,7 @@ import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
+import sun.misc.IOUtils;
 
 /**
  *
@@ -45,8 +47,13 @@ public class JsonLanguage extends SharkLanguageBase {
         public SharkNode read(Input input) throws IOException {
             JsonParser parser = jsonFactory.createJsonParser(input.getStream());
             parser.setCodec(om);
-            JsonNode node = parser.readValueAsTree();
-            return jsonToShark(node);
+            try {
+                JsonNode node = parser.readValueAsTree();
+                return jsonToShark(node);
+            } catch (Throwable ex) {
+                byte[] body = IOUtils.readFully(input.getStream(),0, true);
+                throw new IOException(new String(body),ex);
+            }
         }
         private SharkNode jsonToShark(JsonNode node) {
             if (node == null || node.isNull())
