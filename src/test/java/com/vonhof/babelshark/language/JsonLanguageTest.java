@@ -24,14 +24,9 @@ public class JsonLanguageTest extends TestCase {
     
     @Override
     protected void setUp() throws Exception {
-        super.setUp();
         BabelShark.register(new JsonLanguage());
     }
     
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
 
     public void testCanReadSimpleJson() throws MappingException, IOException {
         Input input = new Input(JSON_SIMPLE, "json");
