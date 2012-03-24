@@ -5,6 +5,7 @@ import com.vonhof.babelshark.*;
 import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.node.SharkNode.NodeType;
 import com.vonhof.babelshark.node.*;
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Map.Entry;
@@ -102,7 +103,14 @@ public class DefaultNodeMapper implements NodeMapper {
         Collection<V> out = null;
         try {
             Class clz = type.getType();
-            if (!ReflectUtils.isInstantiatable(clz)) {
+            if (clz.isArray()) {
+                Object array =  Array.newInstance(clz.getComponentType(), node.size());
+                for(int i = 0; i < node.size();i++) {
+                    Object value = readAs(node.get(i),clz.getComponentType());
+                    Array.set(array, i, value);
+                }
+                return (T) array;
+            } else if (!ReflectUtils.isInstantiatable(clz)) {
                 if (Set.class.isAssignableFrom(clz))
                     clz = HashSet.class;
                 else if (List.class.isAssignableFrom(clz))
@@ -216,8 +224,9 @@ public class DefaultNodeMapper implements NodeMapper {
         if (type.isCollection()) {
             ArrayNode node = new ArrayNode();
             if (instance.getClass().isArray()) {
-                Object[] list = (Object[]) instance;
-                for (Object value:list) {
+                int length = Array.getLength(instance);
+                for(int i = 0; i < length;i++) {
+                    Object value = Array.get(instance, i);
                     node.add(toNode(value));
                 }
             } else {
