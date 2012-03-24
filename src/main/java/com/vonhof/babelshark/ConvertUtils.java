@@ -74,14 +74,18 @@ public class ConvertUtils {
         
         throw new RuntimeException(String.format("Did not recognize type: %s",type.getName()));
     }
-    public static <T extends Number> T convert(Number number,Class<T> type) {
+    public static <T> T convert(Number number,Class<T> type) {
         if (Integer.class.equals(type) || int.class.equals(type))
             return (T) new Integer(number.intValue());
         if (Float.class.equals(type) || float.class.equals(type))
             return (T) new Float(number.floatValue());
         if (Long.class.equals(type) || long.class.equals(type))
             return (T) new Long(number.longValue());
-        return (T) new Double(number.doubleValue());
+        if (Double.class.equals(type) || double.class.equals(type))
+            return (T) new Double(number.doubleValue());
+        if (Date.class.equals(type))
+            return (T) new Date(number.longValue());
+        return null;
     }
 
     public static Object convertCollection(ClassInfo type, String[] values) throws InstantiationException, IllegalAccessException {

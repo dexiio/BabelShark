@@ -7,8 +7,6 @@ import com.vonhof.babelshark.node.SharkNode.NodeType;
 import com.vonhof.babelshark.node.*;
 import com.vonhof.babelshark.reflect.ClassInfo;
 import java.lang.reflect.Array;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Map.Entry;
 import java.util.*;
 
@@ -138,6 +136,11 @@ public class DefaultNodeMapper implements NodeMapper {
     protected <T> T readPrimitive(Object o,Class<T> type) throws MappingException {
         if (type.isInstance(o))
             return (T)o;
+        
+        if (type.equals(String.class)) {
+            return (T) String.valueOf(o);
+        }
+        
         if (String.class.equals(o)) {
             try {
                 return ConvertUtils.convert((String)o, type);
@@ -147,56 +150,12 @@ public class DefaultNodeMapper implements NodeMapper {
         }
         if (o instanceof Number) {
             Number number = (Number) o;
-            if (Integer.class.equals(type) || int.class.equals(type))
-                return (T) new Integer(number.intValue());
-            if (Float.class.equals(type) || float.class.equals(type))
-                return (T) new Float(number.floatValue());
-            if (Double.class.equals(type) || double.class.equals(type))
-                return (T) new Double(number.doubleValue());
-            if (Long.class.equals(type) || long.class.equals(type))
-                return (T) new Long(number.longValue());
-            if (Date.class.equals(type))
-                return (T) new Date(number.longValue());
+            return ConvertUtils.convert(number, type);
         }
+        
         throw new MappingException(String.format("Could not convert %s to %s",o,type.getName()));
     }
     
-    protected <T> T stringToPrimitive(String str,Class<T> type) throws MappingException {
-        if (str == null)
-            return null;
-        if (!ReflectUtils.isPrimitive(type))
-            throw new MappingException(String.format("Not a primitive: %s",type.getName()));
-        if (String.class.equals(type))
-            return (T) str;
-        if (Boolean.class.equals(type))
-            return (T) Boolean.valueOf(str);
-        if (Integer.class.equals(type))
-            return (T) Integer.valueOf(str);
-        if (Float.class.equals(type))
-            return (T) Float.valueOf(str);
-        if (Double.class.equals(type))
-            return (T) Double.valueOf(str);
-        if (Long.class.equals(type))
-            return (T) Long.valueOf(str);
-        if (Enum.class.equals(type)) {
-            try {
-                return (T) type.getMethod("valueOf",String.class).invoke(null,str);
-            } catch (Exception ex) {
-                throw new MappingException(String.format("Could not read enum value in %s: %s",type.getName(),str), ex);
-            }
-        }
-        if (Date.class.equals(type)) {
-            try {
-                return (T) DateFormat.getDateTimeInstance().parse(str);
-            } catch (ParseException ex) {
-                throw new MappingException(String.format("Could not read date string: %s",str), ex);
-            }
-        }
-            
-        
-        throw new MappingException(String.format("Unhandled primitive: %s",type.getName()));
-    }
-
     public SharkNode toNode(Object instance) throws MappingException {
         if (instance instanceof SharkNode)
             return (SharkNode) instance;
