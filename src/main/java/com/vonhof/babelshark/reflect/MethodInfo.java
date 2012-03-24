@@ -21,7 +21,7 @@ public class MethodInfo {
     private final Map<Class<? extends Annotation>,Annotation> annotations = new HashMap<Class<? extends Annotation>, Annotation>();
     private final Map<String,Parameter> parameters = new LinkedHashMap<String, Parameter>();
 
-    public MethodInfo(Method method) {
+    MethodInfo(Method method) {
         this.method = method;
         returnType = ClassInfo.from(method.getReturnType(),method.getGenericReturnType());
         
