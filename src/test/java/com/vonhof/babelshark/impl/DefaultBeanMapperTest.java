@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public class DefaultBeanMapperTest extends TestCase {
     

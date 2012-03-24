@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.vonhof.babelshark.reflect;
 
 import com.vonhof.babelshark.reflect.MethodInfo.Parameter;
@@ -13,7 +9,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public class ClassInfoTest extends TestCase {
     

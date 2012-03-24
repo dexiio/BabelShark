@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @author Henrik Hofmeister <hh@cphse.com>
+ * @author Henrik Hofmeister <@vonhofdk>
  */
 public class DefaultObjectMapperTest extends TestCase {
     private final Class<TestClass> type = TestClass.class;
