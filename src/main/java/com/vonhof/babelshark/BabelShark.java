@@ -3,7 +3,7 @@ package com.vonhof.babelshark;
 import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
-import java.io.ByteArrayOutputStream;
+import com.vonhof.babelshark.reflect.ClassInfo;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +51,10 @@ public class BabelShark {
     public static <T> T readAsValue(SharkNode node, Class<T> clz) throws MappingException {
         return instance.readAsValue(node, clz);
     }
+    
+    public static <T> T readAsValue(SharkNode node, ClassInfo<T> clz) throws MappingException {
+        return instance.readAsValue(node, clz);
+    }
 
     public static <T> List<T> readAsList(SharkNode node, SharkType<List, T> type) throws MappingException {
         return instance.readAsList(node, type);
@@ -83,5 +87,8 @@ public class BabelShark {
 
     public static String getMimeType(String type) {
         return instance.getMimeType(type);
+    }
+    public static String getMimeType(String type,boolean getDefault) {
+        return instance.getMimeType(type,getDefault);
     }
 }

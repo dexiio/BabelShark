@@ -2,44 +2,49 @@ package com.vonhof.babelshark.impl;
 
 import com.vonhof.babelshark.BeanMapper;
 import com.vonhof.babelshark.MappedBean;
-import com.vonhof.babelshark.ReflectUtils;
 import com.vonhof.babelshark.annotation.Ignore;
 import com.vonhof.babelshark.annotation.Name;
 import com.vonhof.babelshark.exception.MappingException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import com.vonhof.babelshark.reflect.ClassInfo;
+import com.vonhof.babelshark.reflect.FieldInfo;
+import com.vonhof.babelshark.reflect.MethodInfo;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class DefaultBeanMapper implements BeanMapper {
-    private final Map<Class,MappedBean> cache = new HashMap<Class, MappedBean>();
+    private final Map<ClassInfo,MappedBean> cache = new HashMap<ClassInfo, MappedBean>();
 
     public <T> MappedBean<T> getMap(Class<T> type) throws MappingException {
+        return getMap(ClassInfo.from(type));
+    }
+    public <T> MappedBean<T> getMap(ClassInfo<T> type) throws MappingException {
         //Get cached version
         MappedBean obj = cache.get(type);
         if (obj != null)
             return obj;
         
         //Not a bean
-        if (!ReflectUtils.isBean(type))
+        if (!type.isBean())
             throw new MappingException(String.format("Cannot get bean map for class %s. Not a bean!",type.getName()));
         
-        if (!ReflectUtils.isInstantiatable(type)) {
+        if (!type.isInstantiatable()) {
             throw new MappingException(String.format("Cannot instantiate bean: %s",type.getName()));
         }
-        
-        
         
         obj = new MappedBean(type);
         
         
-        for(Field field:type.getDeclaredFields()) {
-            if (ignoreField(type, field)) 
+        
+        for(Entry<String,FieldInfo> entry:type.getFields().entrySet()) {
+            FieldInfo f = entry.getValue();
+            if (ignoreField(f)) 
                 continue;
-            final String fieldName = getFieldName(type, field);
-            Method getter = getGetter(type, field);
-            Method setter = getSetter(type, field);
-            obj.addField(fieldName, field,getter,setter);
+            
+            final String fieldName = getFieldName(f);
+            MethodInfo getter = getGetter(type, f);
+            MethodInfo setter = getSetter(type, f);
+            obj.addField(fieldName, f,getter,setter);
         }
         
         cache.put(type,obj);
@@ -47,12 +52,11 @@ public class DefaultBeanMapper implements BeanMapper {
         return obj;
     }
     
-    protected boolean ignoreField(Class type,Field field) {
-        Ignore anno = field.getAnnotation(Ignore.class);
-        return (anno != null);
+    protected boolean ignoreField(FieldInfo field) {
+        return field.hasAnnotation(Ignore.class);
     }
     
-    protected String getFieldName(Class type,Field field) {
+    protected String getFieldName(FieldInfo field) {
         String name = field.getName();
         Name nameAnno = field.getAnnotation(Name.class);
         if (nameAnno != null)
@@ -62,17 +66,17 @@ public class DefaultBeanMapper implements BeanMapper {
     private String ucFirst(String name) {
         return name.substring(0,1).toUpperCase().concat(name.substring(1));
     }
-    protected Method getGetter(Class type,Field field) {
+    protected MethodInfo getGetter(ClassInfo type,FieldInfo field) {
         String name = ucFirst(field.getName());
-        String getterName = (Boolean.class.equals(type)) ? "is"+name : "get"+name;
+        String getterName = (type.isA(Boolean.class)) ? "is"+name : "get"+name;
         try {
-            return type.getDeclaredMethod(getterName);
+            return type.getMethod(getterName);
         } catch (Exception ex) {
             return null;
         }
     }
     
-    protected Method getSetter(Class type,Field field) {
+    protected <T> MethodInfo getSetter(ClassInfo<T> type,FieldInfo field) {
         String name = ucFirst(field.getName());
         String setterName = "set"+name;
         try {

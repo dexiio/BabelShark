@@ -2,6 +2,8 @@ package com.vonhof.babelshark.node;
 
 import com.vonhof.babelshark.ReflectUtils;
 import com.vonhof.babelshark.annotation.Name;
+import com.vonhof.babelshark.reflect.ClassInfo;
+import com.vonhof.babelshark.reflect.FieldInfo;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
@@ -115,27 +117,20 @@ public final class SharkType<T,U> {
         return (SharkType<T, U>) forSimple(type);
     }
     
-    public static SharkType get(Field field) {
-        Class type = field.getType();
-        Class valueType = Object.class;
-        
-        Name nameAnno = field.getAnnotation(Name.class);
-        if (nameAnno != null && nameAnno.generics().length > 0) {
-            valueType = nameAnno.generics()[0];
-        }
-        return get(type, valueType);
+    public static SharkType get(FieldInfo field) {
+        ClassInfo type = field.getType();
+        return get(type);
     }
     
-    public static SharkType get(Class clz,Type type) {
-        Type[] genericTypes = ReflectUtils.getGenericType(type);
+    public static <T> SharkType<T,?> get(ClassInfo<T> info) {
         Class valueType = Object.class;
-        if (ReflectUtils.isMap(clz) && genericTypes.length > 1) {
-            valueType = (Class) genericTypes[1];
+        if (info.isMap() && info.getGenericTypes().length > 1) {
+            valueType = (Class) info.getGenericTypes()[1];
         }
-        if (ReflectUtils.isCollection(clz) && genericTypes.length > 0) {
-            valueType = (Class) genericTypes[0];
+        if (info.isCollection() && info.getGenericTypes().length > 0) {
+            valueType = (Class) info.getGenericTypes()[0];
         }
-        return get(clz,valueType);
+        return get(info.getType(),valueType);
     }
     
 }

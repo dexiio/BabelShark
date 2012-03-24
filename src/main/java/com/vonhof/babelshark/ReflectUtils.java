@@ -65,32 +65,4 @@ public class ReflectUtils {
         return !isCollection(type) && !isMap(type) && !isPrimitive(type);
     }
     
-    public static Type[] getGenericReturnType(Method method) {
-        Type type = method.getGenericReturnType();
-        return getGenericType(type);
-    }
-    
-    public static Type[] getGenericParmTypes(Method method) {
-        Type[] types = method.getGenericParameterTypes();
-
-        for(Type type : types){
-            if(type instanceof ParameterizedType){
-                return getGenericType(type);
-            }
-        }
-        return new Type[0];
-    }
-    public static Type[] getGenericFieldTypes(Field field) {
-        Type type = field.getGenericType();
-        return getGenericType(type);
-        
-    }
-    public static Type[] getGenericType(Type type) {
-        if(type instanceof ParameterizedType){
-            ParameterizedType aType = (ParameterizedType) type;
-            return aType.getActualTypeArguments();
-        }
-        return new Type[0];
-    }
-    
 }

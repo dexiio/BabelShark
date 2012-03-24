@@ -1,40 +1,47 @@
 package com.vonhof.babelshark;
 
 import com.vonhof.babelshark.annotation.FactoryMethod;
-import com.vonhof.babelshark.annotation.Name;
 import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.node.ObjectNode;
 import com.vonhof.babelshark.node.SharkType;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import com.vonhof.babelshark.reflect.ClassInfo;
+import com.vonhof.babelshark.reflect.FieldInfo;
+import com.vonhof.babelshark.reflect.MethodInfo;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class MappedBean<T> {
     private final Map<String,ObjectField> fields = new LinkedHashMap<String, ObjectField>();
-    private final Class<T> clz;
-    private final Method factoryMethod;
+    private final ClassInfo<T> clz;
+    private final MethodInfo factoryMethod;
 
     public MappedBean(Class<T> clz) throws MappingException {
+        this(ClassInfo.from(clz));
+    }
+    public MappedBean(ClassInfo<T> clz) throws MappingException {
         this.clz = clz;
+        factoryMethod = readFactoryMethod();
+    }
+    
+    private MethodInfo readFactoryMethod() throws MappingException {
+        MethodInfo out = null;
         FactoryMethod annotation = clz.getAnnotation(FactoryMethod.class);
         if (annotation != null) {
             try {
-                factoryMethod = clz.getMethod(annotation.value(), ObjectNode.class);
+                out = clz.getMethodByClassParms(annotation.value(), ObjectNode.class);
             } catch (Exception ex) {
                 throw new MappingException(String.format("Could not find provided factory method for class: %s",clz), ex);
             }
-            if (!Modifier.isStatic(factoryMethod.getModifiers()) 
-                    || !Modifier.isPublic(factoryMethod.getModifiers()))
+            if (!factoryMethod.isStatic() 
+                    || !factoryMethod.isPublic())
                 throw new MappingException(String.format("Provided factory method must be public static for class: %s",clz));
-            if (factoryMethod.getParameterTypes().length != 1 
-                    || factoryMethod.getParameterTypes()[0].equals(ObjectNode.class))
+            
+            if (factoryMethod.getParameters().size() != 1 
+                    || factoryMethod.getParameter(0).getType().isA(ObjectNode.class))
                 throw new MappingException(String.format("Provided factory method must have exactly one argument of type ObjectNode for class: %s",clz));
-        } else {
-            factoryMethod = null;
-        }
+        } 
+        return out;
     }
 
     public boolean hasFactoryMethod() {
@@ -48,7 +55,7 @@ public class MappedBean<T> {
         return fields.keySet();
     }
 
-    public ObjectField addField(String name,Field field,Method getter,Method setter) {
+    public ObjectField addField(String name,FieldInfo field,MethodInfo getter,MethodInfo setter) {
         final ObjectField oField = new ObjectField(field, getter, setter);
         
         this.fields.put(name,oField);
@@ -97,37 +104,29 @@ public class MappedBean<T> {
     }
     
     public class ObjectField {
-        private final Field field;
+        private final FieldInfo field;
         private final SharkType type;
-        private Method getter;
-        private Method setter;
+        private MethodInfo getter;
+        private MethodInfo setter;
 
 
-        public ObjectField(Field field, Method getter, Method setter) {
+        public ObjectField(FieldInfo field, MethodInfo getter, MethodInfo setter) {
             this.field = field;
-            
             this.getter = getter;
             this.setter = setter;
             
-            Name annotation = field.getAnnotation(Name.class);
-            if (annotation != null 
-                    && annotation.generics().length > 0) {
-                this.type = SharkType.get(field);
-                return;
-            }
-            
-            if (ReflectUtils.isMapOrCollection(field.getType())) {
+            if (field.getType().isMapOrCollection()) {
                 //Attempt to get the list or map value types
                 if (getter != null) {
-                    type = SharkType.get(field.getType(),getter.getGenericReturnType());
+                    type = SharkType.get(getter.getReturnType());
                     return;
                 }
-                if (setter != null && getter.getGenericParameterTypes().length > 0) {
-                    type = SharkType.get(field.getType(),getter.getGenericParameterTypes()[0]);
+                if (setter != null) {
+                    type = SharkType.get(setter.getParameter(0).getType());
                     return;
                 }
-                if (Modifier.isPublic(field.getModifiers())) {
-                    type = SharkType.get(field.getType(),field.getGenericType());
+                if (field.isPublic()) {
+                    type = SharkType.get(field.getType());
                     return;
                 }
             }
@@ -140,22 +139,15 @@ public class MappedBean<T> {
         }
         
 
-        public void setGetter(Method getter) {
-            this.getter = getter;
-        }
-
-        public void setSetter(Method setter) {
-            this.setter = setter;
-        }
         
         public boolean hasGetter() {
             return getter != null 
-                    || Modifier.isPublic(field.getModifiers());
+                    || field.isPublic();
         }
         
         public boolean hasSetter() {
             return setter != null 
-                    || Modifier.isPublic(field.getModifiers());
+                    || field.isPublic();
         }
         
         public Object get(T obj) throws MappingException {

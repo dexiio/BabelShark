@@ -35,6 +35,4 @@ public @interface Name {
      * @return 
      */
     boolean attribute() default false;
-    
-    Class[] generics() default {};
 }

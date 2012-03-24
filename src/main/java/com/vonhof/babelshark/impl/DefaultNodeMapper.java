@@ -5,6 +5,7 @@ import com.vonhof.babelshark.*;
 import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.node.SharkNode.NodeType;
 import com.vonhof.babelshark.node.*;
+import com.vonhof.babelshark.reflect.ClassInfo;
 import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -24,6 +25,10 @@ public class DefaultNodeMapper implements NodeMapper {
     }
     public DefaultNodeMapper(BeanMapper beanMapper) {
         this.beanMapper = beanMapper;
+    }
+    
+    public <T> T readAs(SharkNode node, ClassInfo<T> type) throws MappingException {
+        return (T) readAs(node, SharkType.get(type));
     }
     
     public <T> T readAs(SharkNode node, Class<T> type) throws MappingException {

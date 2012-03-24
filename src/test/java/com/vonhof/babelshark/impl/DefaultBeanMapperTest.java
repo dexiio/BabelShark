@@ -5,8 +5,9 @@ import com.vonhof.babelshark.MappedBean.ObjectField;
 import com.vonhof.babelshark.annotation.Ignore;
 import com.vonhof.babelshark.annotation.Name;
 import com.vonhof.babelshark.node.SharkType;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import com.vonhof.babelshark.reflect.ClassInfo;
+import com.vonhof.babelshark.reflect.FieldInfo;
+import com.vonhof.babelshark.reflect.MethodInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,7 @@ public class DefaultBeanMapperTest extends TestCase {
         super(testName);
     }
     
-    private final Class type = TestClass.class;
+    private final ClassInfo type = ClassInfo.from(TestClass.class);
     private final DefaultBeanMapper instance = new DefaultBeanMapper();
     
     private MappedBean expResult;
@@ -31,29 +32,28 @@ public class DefaultBeanMapperTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        expResult = new MappedBean(type);
-        expResult.addField("_id", type.getDeclaredField("id"),type.getMethod("getId"), type.getMethod("setId",String.class));
-        expResult.addField("name", type.getDeclaredField("name"),type.getMethod("getName"), type.getMethod("setName",String.class));
-        expResult.addField("subs", type.getDeclaredField("children"),null,null);
-        expResult.addField("fields", type.getDeclaredField("fields"),type.getMethod("getFields"), type.getMethod("setFields",Map.class));
-        
+        expResult = new MappedBean(type.getType());
+        expResult.addField("_id", type.getField("id"),type.getMethod("getId"), type.getMethodByClassParms("setId",String.class));
+        expResult.addField("name", type.getField("name"),type.getMethod("getName"), type.getMethodByClassParms("setName",String.class));
+        expResult.addField("subs", type.getField("children"),null,null);
+        expResult.addField("fields", type.getField("fields"),type.getMethod("getFields"), type.getMethodByClassParms("setFields",Map.class));        
     }
 
     public void testIgnoreField() throws Exception {
-        Field ignoredField = type.getDeclaredField("ignoredField");
-        boolean result = instance.ignoreField(type, ignoredField);
+        FieldInfo ignoredField = type.getField("ignoredField");
+        boolean result = instance.ignoreField(ignoredField);
         assertEquals(true, result);
     }
     
     public void testCanGetFieldName() throws Exception {
-        Field nameField = type.getDeclaredField("name");
-        String result = instance.getFieldName(type, nameField);
+        FieldInfo nameField = type.getField("name");
+        String result = instance.getFieldName(nameField);
         assertEquals("name", result);
     }
     
     public void testCanOverrideFieldName() throws Exception {
-        Field idField = type.getDeclaredField("id");
-        String result = instance.getFieldName(type, idField);
+        FieldInfo idField = type.getField("id");
+        String result = instance.getFieldName(idField);
         assertEquals("_id", result);
     }
     
@@ -70,33 +70,33 @@ public class DefaultBeanMapperTest extends TestCase {
     }
 
     public void testCanGetBeanGetter() throws Exception {
-        Field idField = type.getDeclaredField("id");
-        Method expGetter = type.getMethod("getId");
-        Method getter = instance.getGetter(type, idField);
+        FieldInfo idField = type.getField("id");
+        MethodInfo expGetter = type.getMethod("getId");
+        MethodInfo getter = instance.getGetter(type,idField);
         assertEquals(expGetter, getter);
     }
     
     public void testCanGetPublicGetter() throws Exception {
-        Field childrenField = type.getDeclaredField("children");
-        Method getter = instance.getGetter(type, childrenField);
+        FieldInfo childrenField = type.getField("children");
+        MethodInfo getter = instance.getGetter(type, childrenField);
         assertNull(getter);
     }
     
     public void testCanGetBeanSetter() throws Exception {
-        Field idField = type.getDeclaredField("id");
-        Method expSetter = type.getMethod("setId",String.class);
-        Method setter = instance.getSetter(type, idField);
+        FieldInfo idField = type.getField("id");
+        MethodInfo expSetter = type.getMethodByClassParms("setId",String.class);
+        MethodInfo setter = instance.getSetter(type, idField);
         assertEquals(expSetter, setter);
     }
     
     public void testCanGetPublicSetter() throws Exception {
-        Field childrenField = type.getDeclaredField("children");
-        Method setter = instance.getSetter(type, childrenField);
+        FieldInfo childrenField = type.getField("children");
+        MethodInfo setter = instance.getSetter(type, childrenField);
         assertNull(setter);
     }
     
     public void testMapping() throws Exception {
-        MappedBean result = instance.getMap(type);
+        MappedBean result = instance.getMap(type.getType());
         assertEquals(expResult, result);
     }
 

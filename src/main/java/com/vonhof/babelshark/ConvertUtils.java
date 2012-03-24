@@ -1,9 +1,13 @@
 package com.vonhof.babelshark;
 
+import com.vonhof.babelshark.reflect.ClassInfo;
+import java.lang.reflect.Array;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 
 public class ConvertUtils {
@@ -78,5 +82,30 @@ public class ConvertUtils {
         if (Long.class.equals(type) || long.class.equals(type))
             return (T) new Long(number.longValue());
         return (T) new Double(number.doubleValue());
+    }
+
+    public static Object convertCollection(ClassInfo type, String[] values) throws InstantiationException, IllegalAccessException {
+        if (values == null && values.length == 0)
+            return null;
+        
+        if (type.isCollection()) {
+            if (type.isArray()) {
+                Class arrayType = type.getComponentType();
+                Object arrayValues = Array.newInstance(arrayType,values.length);
+                for (int x = 0; x < values.length; x++) {
+                    Object value = ConvertUtils.convert(values[x], arrayType);
+                    Array.set(arrayValues, x, value);
+                }
+                return arrayValues;
+            } else {
+                Collection list = (Collection) type.newInstance();
+                list.addAll(Arrays.asList(values));
+                return list;
+            }
+
+        } else if (type.isPrimitive()) {
+            return ConvertUtils.convert(values[0], type.getType());
+        }
+        return values[0];
     }
 }

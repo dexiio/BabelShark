@@ -59,7 +59,7 @@ public class DefaultObjectMapperTest extends TestCase {
         
         private String test = "not available";
         
-        @Name(value="subs",generics={TestClass.class})
+        @Name(value="subs")
         public List<TestClass> children = new ArrayList<TestClass>();
 
         public TestClass() {

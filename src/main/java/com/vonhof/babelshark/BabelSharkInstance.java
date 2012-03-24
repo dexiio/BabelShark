@@ -4,6 +4,7 @@ import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.impl.DefaultNodeMapper;
 import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
+import com.vonhof.babelshark.reflect.ClassInfo;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -69,6 +70,10 @@ public class BabelSharkInstance {
     public <T> T read(Input input, Class<T> clz) throws MappingException, IOException {
         return read(input, SharkType.get(clz));
     }
+    
+    public <T> T read(Input input, ClassInfo<T> clz) throws MappingException, IOException {
+        return read(input, SharkType.get(clz));
+    }
 
     public <T> T read(String raw, String type, Class<T> clz) throws MappingException, IOException {
         return read(new Input(raw, type), clz);
@@ -79,6 +84,10 @@ public class BabelSharkInstance {
     }
 
     public <T> T readAsValue(SharkNode node, Class<T> clz) throws MappingException {
+        return mapper.readAs(node, clz);
+    }
+    
+    public <T> T readAsValue(SharkNode node, ClassInfo<T> clz) throws MappingException {
         return mapper.readAs(node, clz);
     }
 
@@ -124,6 +133,11 @@ public class BabelSharkInstance {
     }
 
     public String getMimeType(String type) {
+        return getMimeType(type, false);
+    }
+    public String getMimeType(String type,boolean getDefault) {
+        if (type == null || type.isEmpty())
+            return getDefaultType();
         String out = languages.get(type) != null
                         ? languages.get(type).getContentTypes()[0] : null;
         if (out == null) {
@@ -131,4 +145,6 @@ public class BabelSharkInstance {
         }
         return out;
     }
+    
+    
 }
