@@ -17,10 +17,11 @@ import java.util.Map;
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class BabelSharkInstance {
-    private NodeMapper mapper = new DefaultNodeMapper();
-    private Map<String, SharkLanguage> languages = new HashMap<String, SharkLanguage>();
-    private Map<String, ObjectReader> readers = new HashMap<String, ObjectReader>();
-    private Map<String, ObjectWriter> writers = new HashMap<String, ObjectWriter>();
+    private final NodeMapper mapper = new DefaultNodeMapper();
+    private final Map<String, SharkLanguage> languages = new HashMap<String, SharkLanguage>();
+    private final Map<String, ObjectReader> readers = new HashMap<String, ObjectReader>();
+    private final Map<String, ObjectWriter> writers = new HashMap<String, ObjectWriter>();
+    private final Map<Class,Converter> converters = new HashMap<Class, Converter>();
 
     public void register(SharkLanguage language) {
         final ObjectReader reader = language.getObjectReader();
@@ -37,6 +38,9 @@ public class BabelSharkInstance {
         writers.put(language.getId(), writer);
 
         languages.put(language.getId(), language);
+    }
+    public <T> void register(Class<T> type,Converter<T> converter) {
+        converters.put(type, converter);
     }
 
     public String getDefaultType() {
@@ -80,14 +84,30 @@ public class BabelSharkInstance {
     }
 
     public <T> T readAsValue(SharkNode node, SharkType<T, ?> type) throws MappingException {
+        final Converter converter = converters.get(type.getType()); 
+;
+        if (converter != null) {
+            return (T) converter.convertTo(this,node);
+        }
+        
         return mapper.readAs(node, type);
     }
 
     public <T> T readAsValue(SharkNode node, Class<T> clz) throws MappingException {
+        final Converter converter = converters.get(clz);
+;
+        if (converter != null) {
+            return (T) converter.convertTo(this,node);
+        }
         return mapper.readAs(node, clz);
     }
     
     public <T> T readAsValue(SharkNode node, ClassInfo<T> clz) throws MappingException {
+        final Converter converter = converters.get(clz.getType()); 
+;
+        if (converter != null) {
+            return (T) converter.convertTo(this,node);
+        }
         return mapper.readAs(node, clz);
     }
 
@@ -144,6 +164,11 @@ public class BabelSharkInstance {
             return type;
         }
         return out;
+    }
+
+    public <T> T convert(Object value, Class<T> type) throws MappingException {
+        SharkNode map = mapper.toNode(value);
+        return readAsValue(map, type);
     }
     
     

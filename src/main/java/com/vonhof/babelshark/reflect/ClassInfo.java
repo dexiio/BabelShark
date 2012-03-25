@@ -203,7 +203,10 @@ public class ClassInfo<T> {
     }
 
     public boolean isAssignableFrom(ClassInfo classInfo) {
-        return this.type.isAssignableFrom(classInfo.type);
+        return isAssignableFrom(classInfo.type);
+    }
+    public boolean isAssignableFrom(Class clz) {
+        return this.type.isAssignableFrom(clz);
     }
 
     public boolean isA(Class clz) {

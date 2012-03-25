@@ -88,6 +88,10 @@ public class FieldInfo {
     public String toString() {
         return String.format("%s::%s",field.getDeclaringClass().getName(),getName());
     }
+
+    public void forceAccessible() {
+        field.setAccessible(true);
+    }
     
    
 }
