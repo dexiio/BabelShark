@@ -103,13 +103,16 @@ public class JsonLanguage extends SharkLanguageBase {
         }
 
         public void write(Output output, SharkNode node) throws IOException {
-            JsonGenerator g = jsonFactory.createJsonGenerator(output.getStream());
+            JsonGenerator g = jsonFactory.createJsonGenerator(output.getStream(),JsonEncoding.UTF8);
             writeNode(g, node);
             g.close();
         }
         private void writeNode(JsonGenerator g,SharkNode node) throws IOException {
             if (node instanceof ValueNode) {
-                g.writeObject(((ValueNode)node).getValue());
+                Object value = ((ValueNode)node).getValue();
+                if (value instanceof Enum)
+                    value = ((Enum)value).name();
+                g.writeObject(value);
                 return;
             }
             if (node instanceof ArrayNode) {
