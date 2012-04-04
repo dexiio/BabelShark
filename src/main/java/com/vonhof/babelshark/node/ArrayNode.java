@@ -1,5 +1,6 @@
 package com.vonhof.babelshark.node;
 
+import com.vonhof.babelshark.annotation.Name;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -9,6 +10,7 @@ import java.util.List;
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
+@Name("Object[]")
 public final class ArrayNode extends SharkNode implements Iterable<SharkNode> {
     private final List<SharkNode> children = new ArrayList<SharkNode>();
 

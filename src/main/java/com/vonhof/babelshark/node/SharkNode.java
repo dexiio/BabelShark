@@ -4,6 +4,7 @@ package com.vonhof.babelshark.node;
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
+
 abstract public class SharkNode {
     private final NodeType type;
     private boolean attribute;

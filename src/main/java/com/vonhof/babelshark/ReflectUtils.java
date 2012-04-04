@@ -32,7 +32,11 @@ public class ReflectUtils {
     
     public static boolean isPrimitive(Class type) {
         return type.isPrimitive() 
-                || type.equals(String.class) 
+                || isPrimitive((Type)type)
+                || Enum.class.isAssignableFrom(type);
+    }
+    public static boolean isPrimitive(Type type) {
+        return type.equals(String.class) 
                 || type.equals(Class.class) 
                 || type.equals(Date.class)
                 || type.equals(Timestamp.class)
@@ -48,8 +52,7 @@ public class ReflectUtils {
                 || type.equals(double.class) 
                 || type.equals(long.class) 
                 || type.equals(BigDecimal.class) 
-                || type.equals(BigInteger.class) 
-                || Enum.class.isAssignableFrom(type);
+                || type.equals(BigInteger.class);
     }
     public static boolean isInstantiatable(Class type) {
          return !type.isInterface() 

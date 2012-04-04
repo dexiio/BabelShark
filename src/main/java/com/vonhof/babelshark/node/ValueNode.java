@@ -1,9 +1,12 @@
 package com.vonhof.babelshark.node;
 
+import com.vonhof.babelshark.annotation.Name;
+
 /**
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
+@Name("Object")
 public final class ValueNode<T> extends SharkNode {
     private T value;
 

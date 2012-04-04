@@ -88,24 +88,49 @@ public class ClassInfo<T> {
     }
     
     private void readFields() {
-        Field[] clzFields = type.getDeclaredFields();
-        for (int i = 0; i < clzFields.length; i++) {
-            FieldInfo field = new FieldInfo(clzFields[i]);
-            fields.put(field.getName(),field);
+        
+        Class clz = type;
+        while(true) {
+            if (clz == null 
+                    || clz.equals(Object.class)
+                    || ReflectUtils.isPrimitive(clz))
+                break;
+            
+            Field[] clzFields = clz.getDeclaredFields();
+            
+            for (int i = 0; i < clzFields.length; i++) {
+                FieldInfo field = new FieldInfo(clzFields[i]);
+                if (!fields.containsKey(field.getName()))
+                    fields.put(field.getName(),field);
+            }
+            
+            clz = clz.getSuperclass();
         }
     }
     
     private void readMethods() {
-        Method[] clzMethods = type.getDeclaredMethods();
-        
-        for (int i = 0; i < clzMethods.length; i++) {
-            MethodInfo method = new MethodInfo(clzMethods[i]);
-            methods.add(method);
+        Class clz = type;
+        while(true) {
+            if (clz == null 
+                    || clz.equals(Object.class)
+                    || ReflectUtils.isPrimitive(clz))
+                break;
+            
+            Method[] clzMethods = clz.getDeclaredMethods();
+            
+            for (int i = 0; i < clzMethods.length; i++) {
+                
+                MethodInfo method = new MethodInfo(clzMethods[i]);
+                methods.add(method);
+            }
+            
+            clz = clz.getSuperclass();
         }
+        
     }
     
     private void readAnnotations() {
-        for(Annotation a:type.getDeclaredAnnotations()) {
+        for(Annotation a:type.getAnnotations()) {
             annotations.put(a.annotationType(), a);
         }
     }
@@ -252,6 +277,14 @@ public class ClassInfo<T> {
             return type.getName();
         }
         
+    }
+
+    public boolean isEnum() {
+        return type.isEnum();
+    }
+    
+    public T[] getEnumConstants() {
+        return type.getEnumConstants();
     }
     
 }

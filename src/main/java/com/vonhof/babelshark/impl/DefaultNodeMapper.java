@@ -95,7 +95,7 @@ public class DefaultNodeMapper implements NodeMapper {
         final T out = map.newInstance(node);
         for(String field:node.getFields()) {
             final ObjectField oField = map.getField(field);
-            if (!oField.hasSetter()) continue;
+            if (oField == null || !oField.hasSetter()) continue;
             Object value = readAs(node.get(field),oField.getType());
             oField.set(out,value);
         }

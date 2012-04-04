@@ -136,9 +136,10 @@ public class BabelSharkInstance {
         writer.write(output, map);
     }
 
-    private static String normalizeContentType(String contentType) {
-        return contentType.toLowerCase().
-                trim();
+    private String normalizeContentType(String contentType) {
+        if (contentType == null)
+            return getDefaultType();
+        return contentType.toLowerCase().trim();
     }
 
     public String writeToString(Object value, String contentType) throws MappingException, IOException {

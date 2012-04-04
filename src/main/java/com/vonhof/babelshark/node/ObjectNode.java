@@ -1,5 +1,6 @@
 package com.vonhof.babelshark.node;
 
+import com.vonhof.babelshark.annotation.Name;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -7,6 +8,7 @@ import java.util.Map.Entry;
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
+@Name("Object")
 public final class ObjectNode extends SharkNode {
     private final Map<String,SharkNode> fields = new LinkedHashMap<String, SharkNode>();
 

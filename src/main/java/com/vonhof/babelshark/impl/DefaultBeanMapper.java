@@ -59,7 +59,7 @@ public class DefaultBeanMapper implements BeanMapper {
     protected String getFieldName(FieldInfo field) {
         String name = field.getName();
         Name nameAnno = field.getAnnotation(Name.class);
-        if (nameAnno != null)
+        if (nameAnno != null && !nameAnno.value().isEmpty())
             name = nameAnno.value();
         return name;
     }

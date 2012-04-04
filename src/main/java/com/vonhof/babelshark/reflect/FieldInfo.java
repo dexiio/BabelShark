@@ -54,6 +54,7 @@ public class FieldInfo {
         return Modifier.isStatic(field.getModifiers());
     }
     
+    
     public Object get(Object instance) throws IllegalArgumentException, IllegalAccessException {
         return field.get(instance);
     }
