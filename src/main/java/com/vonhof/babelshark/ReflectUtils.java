@@ -5,9 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -33,7 +31,8 @@ public class ReflectUtils {
     public static boolean isPrimitive(Class type) {
         return type.isPrimitive() 
                 || isPrimitive((Type)type)
-                || Enum.class.isAssignableFrom(type);
+                || Enum.class.isAssignableFrom(type)
+                || Calendar.class.isAssignableFrom(type);
     }
     public static boolean isPrimitive(Type type) {
         return type.equals(String.class) 
@@ -48,6 +47,7 @@ public class ReflectUtils {
                 || type.equals(Long.class) 
                 || type.equals(boolean.class) 
                 || type.equals(int.class) 
+                || type.equals(UUID.class)
                 || type.equals(float.class) 
                 || type.equals(double.class) 
                 || type.equals(long.class) 
@@ -60,8 +60,7 @@ public class ReflectUtils {
                  && !type.isAnnotation()
                  && !type.isArray()
                  && !type.isPrimitive()
-                 && !type.equals(Object.class)
-                 && !Enum.class.isAssignableFrom(type);
+                 && !type.equals(Object.class);
     }
     
     public static boolean isBean(Class type) {

@@ -6,9 +6,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 
 public class ConvertUtils {
     /**
@@ -41,6 +39,11 @@ public class ConvertUtils {
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(String.format("Could not read class name from %s",type.getName(),str), ex);
         }
+        
+        if (UUID.class.equals(type)) {
+            return (T) UUID.fromString(str);
+        }
+
         if (Enum.class.equals(type)) {
             try {
                 return (T) type.getMethod("valueOf",String.class).invoke(null,str);
@@ -55,6 +58,18 @@ public class ConvertUtils {
                 throw new RuntimeException(String.format("Could not read date string: %s",str), ex);
             }
         }
+        
+        if (Calendar.class.isAssignableFrom(type)) {
+            try {
+                Date date = DateFormat.getDateTimeInstance().parse(str);
+                GregorianCalendar calendar = new GregorianCalendar();
+                calendar.setTime(date);
+                return (T) calendar;
+            } catch (ParseException ex) {
+                throw new RuntimeException(String.format("Could not read date string: %s",str), ex);
+            }
+        }
+        
         if (Timestamp.class.equals(type)) {
             try {
                 Date time = DateFormat.getTimeInstance().parse(str);

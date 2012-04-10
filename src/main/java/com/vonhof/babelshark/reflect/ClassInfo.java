@@ -286,5 +286,15 @@ public class ClassInfo<T> {
     public T[] getEnumConstants() {
         return type.getEnumConstants();
     }
+
+    public List<MethodInfo> getMethodsByAnnotation(Class<? extends Annotation> annotation) {
+        List<MethodInfo> out = new ArrayList<MethodInfo>();
+        for(MethodInfo method:getMethods()) {
+            if (method.hasAnnotation(annotation)) {
+                out.add(method);
+            }
+        }
+        return out;
+    }
     
 }
