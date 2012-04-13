@@ -70,20 +70,26 @@ public class DefaultBeanMapper implements BeanMapper {
         String name = ucFirst(field.getName());
         String getterName = (type.isA(Boolean.class)) ? "is"+name : "get"+name;
         try {
-            return type.getMethod(getterName);
+            MethodInfo method = type.getMethod(getterName);
+            if (!method.hasAnnotation(Ignore.class))
+                return method;
         } catch (Exception ex) {
-            return null;
+            
         }
+        return null;
     }
     
     protected <T> MethodInfo getSetter(ClassInfo<T> type,FieldInfo field) {
         String name = ucFirst(field.getName());
         String setterName = "set"+name;
         try {
-            return type.getMethod(setterName,field.getType());
+            MethodInfo method = type.getMethod(setterName,field.getType());
+            if (!method.hasAnnotation(Ignore.class))
+                return method;
         } catch (Exception ex) {
-            return null;
+            
         }
+        return null;
     }
 
 }
