@@ -134,6 +134,9 @@ public class DefaultNodeMapper implements NodeMapper {
     }
     
     protected <T> T readPrimitive(Object o,Class<T> type) throws MappingException {
+        if (o == null)
+            return null;
+        
         if (type.isInstance(o))
             return (T)o;
         
@@ -141,7 +144,7 @@ public class DefaultNodeMapper implements NodeMapper {
             return (T) String.valueOf(o);
         }
         
-        if (String.class.equals(o)) {
+        if (o instanceof String) {
             try {
                 return ConvertUtils.convert((String)o, type);
             } catch(RuntimeException ex) {

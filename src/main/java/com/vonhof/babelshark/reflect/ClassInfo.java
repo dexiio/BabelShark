@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  *
@@ -292,6 +293,16 @@ public class ClassInfo<T> {
         for(MethodInfo method:getMethods()) {
             if (method.hasAnnotation(annotation)) {
                 out.add(method);
+            }
+        }
+        return out;
+    }
+
+    public List<FieldInfo> getFieldsByAnnotation(Class<? extends Annotation> annotation) {
+        List<FieldInfo> out = new ArrayList<FieldInfo>();
+        for(Entry<String,FieldInfo> field:getFields().entrySet()) {
+            if (field.getValue().hasAnnotation(annotation)) {
+                out.add(field.getValue());
             }
         }
         return out;

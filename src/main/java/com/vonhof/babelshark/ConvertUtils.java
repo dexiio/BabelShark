@@ -44,9 +44,9 @@ public class ConvertUtils {
             return (T) UUID.fromString(str);
         }
 
-        if (Enum.class.equals(type)) {
+        if (Enum.class.isAssignableFrom(type)) {
             try {
-                return (T) type.getMethod("valueOf",String.class).invoke(null,str);
+                return (T) Enum.valueOf((Class<Enum>)type, str);
             } catch (Exception ex) {
                 throw new RuntimeException(String.format("Could not read enum value in %s: %s",type.getName(),str), ex);
             }
@@ -125,6 +125,8 @@ public class ConvertUtils {
         } else if (type.isPrimitive()) {
             return ConvertUtils.convert(values[0], type.getType());
         }
-        return values[0];
+        if (values.length > 0)
+            return values[0];
+        return null;
     }
 }
