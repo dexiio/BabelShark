@@ -21,6 +21,7 @@ public class DefaultNodeMapper implements NodeMapper {
     public DefaultNodeMapper() {
         this(new DefaultBeanMapper());
     }
+    
     public DefaultNodeMapper(BeanMapper beanMapper) {
         this.beanMapper = beanMapper;
     }
@@ -39,6 +40,7 @@ public class DefaultNodeMapper implements NodeMapper {
         
         if (SharkNode.class.isAssignableFrom(type.getType()))
             return (T) node;
+        
         
         if (ReflectUtils.isPrimitive(type.getType())) {
             if (!node.is(NodeType.VALUE))
