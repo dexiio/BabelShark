@@ -43,6 +43,10 @@ public class BabelShark {
     public static <T> T read(String raw, String type, Class<T> clz) throws MappingException, IOException {
         return instance.read(raw, type, clz);
     }
+    
+    public static <T> T read(String raw, Class<T> clz) throws MappingException, IOException {
+        return instance.read(raw, getDefaultType(), clz);
+    }
 
     public static <T> T readAsValue(SharkNode node, SharkType<T, ?> type) throws MappingException {
         return instance.readAsValue(node, type);
@@ -75,6 +79,10 @@ public class BabelShark {
     public static void write(Output output, Object value) throws MappingException, IOException {
         instance.write(output, value);
     }
+    
+    public static String writeToString(Object value) throws MappingException, IOException {
+        return writeToString(value, getDefaultType());
+    }
 
 
     public static String writeToString(Object value, String contentType) throws MappingException, IOException {
@@ -88,7 +96,7 @@ public class BabelShark {
     public static String getMimeType(String type) {
         return instance.getMimeType(type);
     }
-    public static String getMimeType(String type,boolean getDefault) {
-        return instance.getMimeType(type,getDefault);
+    public static String getMimeType(String type,boolean useDefault) {
+        return instance.getMimeType(type,useDefault);
     }
 }

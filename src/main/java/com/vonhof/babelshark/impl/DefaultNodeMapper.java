@@ -38,6 +38,9 @@ public class DefaultNodeMapper implements NodeMapper {
         if (type == null)
             type = (SharkType<T, U>) SharkType.forSimple(Object.class);
         
+        if (node.is(NodeType.VALUE) && ((ValueNode)node).getValue() == null)
+            return null;
+        
         if (SharkNode.class.isAssignableFrom(type.getType()))
             return (T) node;
         
@@ -49,6 +52,7 @@ public class DefaultNodeMapper implements NodeMapper {
             ValueNode valueNode = (ValueNode) node;
             return readPrimitive(valueNode.getValue(),type.getType());
         }
+        
         
         if (ReflectUtils.isMappable(type.getType())) {
             if (!node.is(NodeType.MAP))
