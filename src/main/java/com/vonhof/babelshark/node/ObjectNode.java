@@ -106,4 +106,36 @@ public final class ObjectNode extends SharkNode {
         return hash;
     }
     
+    public ArrayNode getArray(String field) {
+        return (ArrayNode) get(field);
+    }
+    
+    public ObjectNode getObject(String field) {
+        return (ObjectNode) get(field);
+    }
+    
+    public <T> T getValue(String field,Class<T> valueType) {
+        ValueNode node = (ValueNode) get(field);
+        return (T) node.getValue();
+    }
+
+    public String getString(String field) {
+        return getValue(field, String.class);
+    }
+    
+    public int getInt(String field) {
+        return (int) getValue(field, Integer.class);
+    }
+    
+    public float getFloat(String field) {
+        return (float) getValue(field, Float.class);
+    }
+    
+    public double getDouble(String field) {
+        return (double) getValue(field, Double.class);
+    }
+    
+    public boolean getBoolean(String field) {
+        return (boolean) getValue(field, Boolean.class);
+    }
 }

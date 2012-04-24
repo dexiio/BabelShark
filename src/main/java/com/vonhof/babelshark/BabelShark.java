@@ -17,6 +17,8 @@ public class BabelShark {
 
     private static final BabelSharkInstance instance = new BabelSharkInstance();
 
+    
+
     private BabelShark() {
     }
 
@@ -26,6 +28,9 @@ public class BabelShark {
     
     public static void register(SharkLanguage language) {
         instance.register(language);
+    }
+    public static void register(Class clz, Converter<?> converter) {
+        instance.register(clz, converter);
     }
 
     public static String getDefaultType() {

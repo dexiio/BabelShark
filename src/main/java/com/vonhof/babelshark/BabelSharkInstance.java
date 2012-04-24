@@ -52,6 +52,10 @@ public class BabelSharkInstance {
         return null;
     }
 
+    public NodeMapper getMapper() {
+        return mapper;
+    }
+
     private ObjectReader getReader(String contentType) {
         contentType = normalizeContentType(contentType);
         return readers.get(contentType);
@@ -126,13 +130,23 @@ public class BabelSharkInstance {
     public <T> Map<String, T> readAsMap(SharkNode node, Class<T> clz) throws MappingException {
         return mapper.readAs(node, SharkType.forMap(Map.class, clz));
     }
+    
+    public SharkNode write(Object value) throws MappingException {
+        if (value != null) {
+            Converter converter = converters.get(value.getClass());
+            if (converter != null) {
+                return converter.convertFrom(this, value);
+            }
+        }
+        return mapper.toNode(value);
+    }
 
     public void write(Output output, Object value) throws MappingException, IOException {
         ObjectWriter writer = getWriter(output.getContentType());
         if (writer == null) {
             throw new MappingException(String.format("Unknown content type:", output.getContentType()));
         }
-        SharkNode map = mapper.toNode(value);
+        SharkNode map = write(value);
         writer.write(output, map);
     }
 
