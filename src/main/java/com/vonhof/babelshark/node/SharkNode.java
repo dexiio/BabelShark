@@ -62,9 +62,5 @@ abstract public class SharkNode {
         return hash;
     }
     
-    public static enum NodeType {
-        MAP,
-        LIST,
-        VALUE
-    }
+    public static enum NodeType {MAP,LIST,VALUE}
 }

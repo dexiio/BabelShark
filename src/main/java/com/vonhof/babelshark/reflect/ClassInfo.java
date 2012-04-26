@@ -94,7 +94,7 @@ public class ClassInfo<T> {
         while(true) {
             if (clz == null 
                     || clz.equals(Object.class)
-                    || ReflectUtils.isPrimitive(clz))
+                    || ReflectUtils.isSimple(clz))
                 break;
             
             Field[] clzFields = clz.getDeclaredFields();
@@ -114,7 +114,7 @@ public class ClassInfo<T> {
         while(true) {
             if (clz == null 
                     || clz.equals(Object.class)
-                    || ReflectUtils.isPrimitive(clz))
+                    || ReflectUtils.isSimple(clz))
                 break;
             
             Method[] clzMethods = clz.getDeclaredMethods();
@@ -149,7 +149,7 @@ public class ClassInfo<T> {
     }
 
     public boolean isPrimitive() {
-        return ReflectUtils.isPrimitive(type);
+        return ReflectUtils.isSimple(type);
     }
 
     public boolean isBean() {
@@ -236,7 +236,7 @@ public class ClassInfo<T> {
     }
 
     public boolean isA(Class clz) {
-        return this.type.equals(clz) || type.isAssignableFrom(clz);
+        return this.type.equals(clz) || (type.isAssignableFrom(clz) && !type.equals(Object.class));
     }
 
     public boolean isArray() {

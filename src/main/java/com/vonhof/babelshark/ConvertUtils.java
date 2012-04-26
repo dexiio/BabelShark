@@ -19,7 +19,7 @@ public class ConvertUtils {
     public static <T> T convert(String str,Class<T> type) {
         if (str == null)
             return null;
-        if (!ReflectUtils.isPrimitive(type))
+        if (!ReflectUtils.isSimple(type))
             throw new RuntimeException(String.format("Not a primitive: %s",type.getName()));
         if (String.class.equals(type))
             return (T) str;

@@ -28,29 +28,35 @@ public class ReflectUtils {
         return isMap(type) || isBean(type);
     }
     
-    public static boolean isPrimitive(Class type) {
+    public static boolean isSimple(Class type) {
         return type.isPrimitive() 
-                || isPrimitive((Type)type)
+                || isSimple((Type)type)
                 || Enum.class.isAssignableFrom(type)
                 || Calendar.class.isAssignableFrom(type);
     }
-    public static boolean isPrimitive(Type type) {
+    public static boolean isSimple(Type type) {
         return type.equals(String.class) 
                 || type.equals(Class.class) 
                 || type.equals(Date.class)
                 || type.equals(Timestamp.class)
                 || type.equals(Time.class)
                 || type.equals(Boolean.class) 
+                || type.equals(Boolean.TYPE)
+                || type.equals(Character.class) 
+                || type.equals(Character.TYPE) 
+                || type.equals(Byte.class) 
+                || type.equals(Byte.TYPE) 
+                || type.equals(Short.class) 
+                || type.equals(Short.TYPE) 
                 || type.equals(Integer.class) 
+                || type.equals(Integer.TYPE) 
                 || type.equals(Float.class) 
+                || type.equals(Float.TYPE) 
                 || type.equals(Double.class) 
+                || type.equals(Double.TYPE) 
                 || type.equals(Long.class) 
-                || type.equals(boolean.class) 
-                || type.equals(int.class) 
+                || type.equals(Long.TYPE)
                 || type.equals(UUID.class)
-                || type.equals(float.class) 
-                || type.equals(double.class) 
-                || type.equals(long.class) 
                 || type.equals(BigDecimal.class) 
                 || type.equals(BigInteger.class);
     }
@@ -64,7 +70,7 @@ public class ReflectUtils {
     }
     
     public static boolean isBean(Class type) {
-        return !isCollection(type) && !isMap(type) && !isPrimitive(type);
+        return !isCollection(type) && !isMap(type) && !isSimple(type);
     }
     
 }

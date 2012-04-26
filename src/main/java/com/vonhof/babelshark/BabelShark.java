@@ -29,9 +29,19 @@ public class BabelShark {
     public static void register(SharkLanguage language) {
         instance.register(language);
     }
-    public static void register(Class clz, Converter<?> converter) {
+    
+    public static void register(Class clz, SharkConverter<?> converter) {
         instance.register(clz, converter);
     }
+    
+    public static void register(Class clz, SharkDeserializer<?> converter) {
+        instance.register(clz, converter);
+    }
+    
+    public static void register(Class clz, SharkSerializer<?> converter) {
+        instance.register(clz, converter);
+    }
+    
 
     public static String getDefaultType() {
         return instance.getDefaultType();
@@ -54,15 +64,15 @@ public class BabelShark {
     }
 
     public static <T> T readAsValue(SharkNode node, SharkType<T, ?> type) throws MappingException {
-        return instance.readAsValue(node, type);
+        return instance.read(node, type);
     }
 
     public static <T> T readAsValue(SharkNode node, Class<T> clz) throws MappingException {
-        return instance.readAsValue(node, clz);
+        return instance.read(node, clz);
     }
     
     public static <T> T readAsValue(SharkNode node, ClassInfo<T> clz) throws MappingException {
-        return instance.readAsValue(node, clz);
+        return instance.read(node, clz);
     }
 
     public static <T> List<T> readAsList(SharkNode node, SharkType<List, T> type) throws MappingException {

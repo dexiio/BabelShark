@@ -1,27 +1,39 @@
 package com.vonhof.babelshark;
 
+import com.vonhof.babelshark.converter.BeanConverter;
+import com.vonhof.babelshark.converter.CollectionConverter;
+import com.vonhof.babelshark.converter.MapConverter;
+import com.vonhof.babelshark.converter.SimpleConverter;
 import com.vonhof.babelshark.exception.MappingException;
-import com.vonhof.babelshark.impl.DefaultNodeMapper;
 import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
+import com.vonhof.babelshark.node.ValueNode;
 import com.vonhof.babelshark.reflect.ClassInfo;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * Singleton instance of the babelshark engine
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
-public class BabelSharkInstance {
-    private final NodeMapper mapper = new DefaultNodeMapper();
+public final class BabelSharkInstance {
     private final Map<String, SharkLanguage> languages = new HashMap<String, SharkLanguage>();
     private final Map<String, ObjectReader> readers = new HashMap<String, ObjectReader>();
     private final Map<String, ObjectWriter> writers = new HashMap<String, ObjectWriter>();
-    private final Map<Class,Converter> converters = new HashMap<Class, Converter>();
+    private final TypeRegistry<SharkSerializer> serializers = new TypeRegistry<SharkSerializer>();
+    private final TypeRegistry<SharkDeserializer> deserializers = new TypeRegistry<SharkDeserializer>();
+    
+    public BabelSharkInstance() {
+        registerSimple(new SimpleConverter());
+        register(Map.class, new MapConverter());
+        register(Collection.class, new CollectionConverter());
+        register(Object.class, new BeanConverter());
+    }
 
     public void register(SharkLanguage language) {
         final ObjectReader reader = language.getObjectReader();
@@ -39,8 +51,61 @@ public class BabelSharkInstance {
 
         languages.put(language.getId(), language);
     }
-    public <T> void register(Class<T> type,Converter<T> converter) {
-        converters.put(type, converter);
+    
+    public <T> void registerSimple(SharkConverter<T> converter) {
+        //Simple built-in immutables
+        register(Enum.class, converter);
+        register(Class.class, converter);
+        register(UUID.class, converter);
+        register(Date.class, converter);
+        register(java.sql.Date.class, converter);
+        register(Timestamp.class, converter);
+        register(String.class, converter);
+        register(BigDecimal.class, converter);
+        register(BigInteger.class, converter);
+        register(Calendar.class, converter);
+        
+        //Primitive types and their wrappers
+        register(Boolean.class, converter);
+        register(Boolean.TYPE, converter);
+        register(Float.class, converter);
+        register(Float.TYPE, converter);
+        register(Integer.class, converter);
+        register(Integer.TYPE, converter);
+        register(Long.class, converter);
+        register(Long.TYPE, converter);
+        register(Short.class, converter);
+        register(Short.TYPE, converter);
+        register(Double.class, converter);
+        register(Double.TYPE, converter);
+        register(Byte.class, converter);
+        register(Byte.TYPE, converter);
+        register(Character.class, converter);
+        register(Character.TYPE, converter);
+        register(Float.class, converter);
+        register(Float.TYPE, converter);
+    }
+    
+    public <T> void register(Class type,SharkConverter<T> converter) {
+        register(SharkType.get(type), converter);
+    }
+    
+    public <T> void register(Class type,SharkDeserializer<T> converter) {
+        register(SharkType.get(type), converter);
+    }
+    public <T> void register(Class type,SharkSerializer<T> converter) {
+        register(SharkType.get(type), converter);
+    }
+    public <T> void register(SharkType type,SharkConverter<T> converter) {
+        serializers.put(type, converter);
+        deserializers.put(type, converter);
+    }
+    public <T> void register(SharkType type,SharkSerializer<T> converter) {
+        serializers.put(type, converter);
+    }
+    
+    public <T> void register(SharkType type,SharkDeserializer converter) {
+        deserializers.put(type, converter);
     }
 
     public String getDefaultType() {
@@ -50,10 +115,6 @@ public class BabelSharkInstance {
                     next();
         }
         return null;
-    }
-
-    public NodeMapper getMapper() {
-        return mapper;
     }
 
     private ObjectReader getReader(String contentType) {
@@ -72,7 +133,7 @@ public class BabelSharkInstance {
             throw new MappingException(String.format("Unknown content type: %s", input.getContentType()));
         }
         SharkNode map = reader.read(input);
-        return readAsValue(map, type);
+        return read(map, type);
     }
 
     public <T> T read(Input input, Class<T> clz) throws MappingException, IOException {
@@ -87,58 +148,77 @@ public class BabelSharkInstance {
         return read(new Input(raw, type), clz);
     }
 
-    public <T> T readAsValue(SharkNode node, SharkType<T, ?> type) throws MappingException {
-        final Converter converter = converters.get(type.getType()); 
-;
-        if (converter != null) {
-            return (T) converter.convertTo(this,node);
+    public <T> T read(SharkNode node, SharkType<T, ?> type) throws MappingException {
+        
+        if (node.is(SharkNode.NodeType.VALUE) 
+                && ((ValueNode)node).getValue() == null) {
+            return null;
         }
         
-        return mapper.readAs(node, type);
+        if (type.getType().equals(Object.class)) {
+            if (node.is(SharkNode.NodeType.VALUE)) {
+                Object value = ((ValueNode)node).getValue();
+                if (value != null)
+                    type = SharkType.get((Class<T>)value.getClass());
+            }
+            
+            if (node.is(SharkNode.NodeType.LIST)) {
+                type = (SharkType<T, ?>) SharkType.forCollection(List.class, Object.class);
+            }
+            
+            if (node.is(SharkNode.NodeType.MAP)) {
+                type = (SharkType<T, ?>) SharkType.forMap(Map.class, Object.class);
+            }
+        }
+        
+        final SharkDeserializer converter = deserializers.get(type); 
+        
+        if (SharkNode.class.isAssignableFrom(type.getType()))
+            return (T) node;
+
+        if (converter != null) {
+            return (T) converter.deserialize(this,node,type);
+        }
+        
+        throw new MappingException(String.format("No deserializer could be found for %s",type));
     }
 
-    public <T> T readAsValue(SharkNode node, Class<T> clz) throws MappingException {
-        final Converter converter = converters.get(clz);
-;
-        if (converter != null) {
-            return (T) converter.convertTo(this,node);
-        }
-        return mapper.readAs(node, clz);
+    public <T> T read(SharkNode node, Class<T> clz) throws MappingException {
+        return read(node, SharkType.get(clz));
     }
     
-    public <T> T readAsValue(SharkNode node, ClassInfo<T> clz) throws MappingException {
-        final Converter converter = converters.get(clz.getType()); 
-;
-        if (converter != null) {
-            return (T) converter.convertTo(this,node);
-        }
-        return mapper.readAs(node, clz);
+    public <T> T read(SharkNode node, ClassInfo<T> clz) throws MappingException {
+        return read(node, SharkType.get(clz));
     }
 
     public <T> List<T> readAsList(SharkNode node, SharkType<List, T> type) throws MappingException {
-        return mapper.readAs(node, type);
+        return read(node, type);
     }
 
     public <T> List<T> readAsList(SharkNode node, Class<T> clz) throws MappingException {
-        return mapper.readAs(node, SharkType.forCollection(List.class, clz));
+        return read(node, SharkType.forCollection(List.class, clz));
     }
 
     public <T> Map<String, T> readAsMap(SharkNode node, SharkType<Map, T> type) throws MappingException {
-        return mapper.readAs(node, type);
+        return read(node, type);
     }
 
     public <T> Map<String, T> readAsMap(SharkNode node, Class<T> clz) throws MappingException {
-        return mapper.readAs(node, SharkType.forMap(Map.class, clz));
+        return read(node, SharkType.forMap(Map.class, clz));
     }
     
     public SharkNode write(Object value) throws MappingException {
         if (value != null) {
-            Converter converter = converters.get(value.getClass());
+            if (value instanceof SharkNode)
+                return (SharkNode) value;
+            
+            SharkSerializer converter = serializers.get(SharkType.get(value.getClass()));
             if (converter != null) {
-                return converter.convertFrom(this, value);
+                return converter.serialize(this, value);
             }
+            throw new MappingException(String.format("No serializer could be found for %s",value.getClass()));
         }
-        return mapper.toNode(value);
+        return new ValueNode(null);
     }
 
     public void write(Output output, Object value) throws MappingException, IOException {
@@ -182,8 +262,14 @@ public class BabelSharkInstance {
     }
 
     public <T> T convert(Object value, Class<T> type) throws MappingException {
-        SharkNode map = mapper.toNode(value);
-        return readAsValue(map, type);
+        if (SharkNode.class.isAssignableFrom(type))
+            return (T) write(value);
+        if (SharkNode.class.isAssignableFrom(value.getClass()))
+            return read((SharkNode)value, type);
+        
+        //None of the arguments are nodes - convert to node and convert back into value
+        SharkNode node = write(value);
+        return read(node,type);
     }
     
     

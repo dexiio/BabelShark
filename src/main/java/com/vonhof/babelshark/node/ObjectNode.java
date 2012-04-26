@@ -115,8 +115,14 @@ public final class ObjectNode extends SharkNode {
     }
     
     public <T> T getValue(String field,Class<T> valueType) {
+        return getValue(field, valueType,null);
+    }
+    
+    public <T> T getValue(String field,Class<T> valueType,T defaultValue) {
         ValueNode node = (ValueNode) get(field);
-        return (T) node.getValue();
+        if (node != null)
+            return (T) node.getValue();
+        return defaultValue;
     }
 
     public String getString(String field) {
@@ -124,18 +130,18 @@ public final class ObjectNode extends SharkNode {
     }
     
     public int getInt(String field) {
-        return (int) getValue(field, Integer.class);
+        return (int) getValue(field, Integer.class,0);
     }
     
     public float getFloat(String field) {
-        return (float) getValue(field, Float.class);
+        return (float) getValue(field, Float.class,0F);
     }
     
     public double getDouble(String field) {
-        return (double) getValue(field, Double.class);
+        return (double) getValue(field, Double.class,0D);
     }
     
     public boolean getBoolean(String field) {
-        return (boolean) getValue(field, Boolean.class);
+        return (boolean) getValue(field, Boolean.class,false);
     }
 }
