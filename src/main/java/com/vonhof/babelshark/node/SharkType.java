@@ -5,7 +5,9 @@ import com.vonhof.babelshark.annotation.Name;
 import com.vonhof.babelshark.reflect.ClassInfo;
 import com.vonhof.babelshark.reflect.FieldInfo;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 /**
  *
@@ -125,12 +127,26 @@ public final class SharkType<T,U> {
     public static <T> SharkType<T,?> get(ClassInfo<T> info) {
         Class valueType = Object.class;
         if (info.isMap() && info.getGenericTypes().length > 1) {
-            valueType = (Class) info.getGenericTypes()[1];
+            valueType = type2Class(info.getGenericTypes()[1]);
+            
         }
         if (info.isCollection() && info.getGenericTypes().length > 0) {
-            valueType = (Class) info.getGenericTypes()[0];
+            valueType = type2Class(info.getGenericTypes()[0]);
         }
         return get(info.getType(),valueType);
+    }
+    
+    private static Class type2Class(Type type) {
+        if (type instanceof ParameterizedType) {
+            ParameterizedType subType = (ParameterizedType) type;
+            return type2Class(subType.getRawType());
+        }
+        
+        if (type instanceof TypeVariable) {
+            return Object.class;
+        }
+        
+        return (Class) type;
     }
     
 }
