@@ -7,6 +7,7 @@ import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.node.ObjectNode;
 import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
+import com.vonhof.babelshark.node.ValueNode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -17,8 +18,14 @@ import java.util.Map;
 public class MapConverter implements SharkConverter<Map> {
     
     public <U> Map deserialize(BabelSharkInstance bs, SharkNode node, SharkType<Map, U> type) throws MappingException {
-        if (!node.is(SharkNode.NodeType.MAP))
+        if (!node.is(SharkNode.NodeType.MAP)) {
+            //Ignore null or empty string values
+            if (node.is(SharkNode.NodeType.VALUE) && 
+                    ( ((ValueNode)node).getValue() == null || "".equals(String.valueOf(((ValueNode)node).getValue())))) 
+                return null;
             throw new MappingException(String.format("Could not convert %s to %s",node,type));
+        }
+            
         ObjectNode objNode = (ObjectNode) node;
         Map<String,U> out = null;
         try {
