@@ -66,6 +66,7 @@ public class JsonLanguage extends SharkLanguageBase {
                 return new ValueNode(node.getIntValue());
             if (node.isLong())
                 return new ValueNode(node.getLongValue());
+            
             if (node.isTextual())
                 return new ValueNode(node.getTextValue());
             

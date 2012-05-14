@@ -27,6 +27,9 @@ public class SimpleConverter implements SharkConverter<Object> {
         ValueNode valueNode = (ValueNode) node;
         Object o = valueNode.getValue();
         
+        if (clz.equals(Object.class) && o != null)
+            clz = (Class<Object>) o.getClass();
+        
         if (clz.isInstance(o))
             return o;
         
@@ -47,38 +50,56 @@ public class SimpleConverter implements SharkConverter<Object> {
         }
         
         if (clz.equals(Boolean.TYPE) 
-                && Boolean.class.equals(o.getClass())) {
+                    || Boolean.class.equals(clz)) {
+            if (o == null)
+                return false;
             return o;
         }
         
         if (clz.equals(Character.TYPE) 
-                && Character.class.equals(o.getClass())) {
+                || Character.class.equals(clz)) {
+            if (o == null)
+                return (char)0;
             return o;
         }
         if (clz.equals(Byte.TYPE) 
-                && Byte.class.equals(o.getClass())) {
+                || Byte.class.equals(clz)) {
+            if (o == null)
+                return (byte)0;
             return o;
         }
         if (clz.equals(Short.TYPE) 
-                && Short.class.equals(o.getClass())) {
+                || Short.class.equals(clz)) {
+            if (o == null)
+                return (short)0;
             return o;
         }
         if (clz.equals(Integer.TYPE) 
-                && Integer.class.equals(o.getClass())) {
+                || Integer.class.equals(clz)) {
+            if (o == null)
+                return 0;
             return o;
         }
         if (clz.equals(Long.TYPE) 
-                && Long.class.equals(o.getClass())) {
+                || Long.class.equals(clz)) {
+            if (o == null)
+                return 0L;
             return o;
         }
         if (clz.equals(Float.TYPE) 
-                && Float.class.equals(o.getClass())) {
+                || Float.class.equals(clz)) {
+            if (o == null)
+                return 0F;
             return o;
         }
         if (clz.equals(Double.TYPE) 
-                && Double.class.equals(o.getClass())) {
+                || Double.class.equals(clz)) {
+            if (o == null)
+                return 0D;
             return o;
         }
+        if (o == null)
+            return null;
         throw new MappingException(String.format("Could not convert %s to %s",o,clz.getName()));
     }
 

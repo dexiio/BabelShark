@@ -152,7 +152,8 @@ public final class BabelSharkInstance {
         
         if (node.is(SharkNode.NodeType.VALUE) 
                 && ((ValueNode)node).getValue() == null) {
-            return null;
+            if (!ReflectUtils.isSimple(type.getType()))
+                return null;
         }
         
         if (type.getType().equals(Object.class)) {
