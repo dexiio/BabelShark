@@ -1,10 +1,12 @@
 package com.vonhof.babelshark;
 
+import com.vonhof.babelshark.annotation.TypeResolver;
 import com.vonhof.babelshark.converter.BeanConverter;
 import com.vonhof.babelshark.converter.CollectionConverter;
 import com.vonhof.babelshark.converter.MapConverter;
 import com.vonhof.babelshark.converter.SimpleConverter;
 import com.vonhof.babelshark.exception.MappingException;
+import com.vonhof.babelshark.node.ObjectNode;
 import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
 import com.vonhof.babelshark.node.ValueNode;
@@ -145,6 +147,14 @@ public final class BabelSharkInstance {
     }
 
     public <T> T read(String raw, String type, Class<T> clz) throws MappingException, IOException {
+        return read(new Input(raw, type), clz);
+    }
+    
+    public <T> T read(String raw, String type, ClassInfo<T> clz) throws MappingException, IOException {
+        return read(new Input(raw, type), clz);
+    }
+    
+    public <T> T read(String raw, String type, SharkType<T,?> clz) throws MappingException, IOException {
         return read(new Input(raw, type), clz);
     }
 

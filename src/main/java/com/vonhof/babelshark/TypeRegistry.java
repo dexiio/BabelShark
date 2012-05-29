@@ -1,6 +1,5 @@
 package com.vonhof.babelshark;
 
-import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
 import java.util.Collection;
 import java.util.HashMap;

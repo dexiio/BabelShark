@@ -62,6 +62,14 @@ public class BabelShark {
     public static <T> T read(String raw, Class<T> clz) throws MappingException, IOException {
         return instance.read(raw, getDefaultType(), clz);
     }
+    
+    public static <T> T read(String raw, ClassInfo<T> clz) throws MappingException, IOException {
+        return instance.read(raw, getDefaultType(), clz);
+    }
+    
+    public static <T> T read(String raw, SharkType<T,?> clz) throws MappingException, IOException {
+        return instance.read(raw, getDefaultType(), clz);
+    }
 
     public static <T> T readAsValue(SharkNode node, SharkType<T, ?> type) throws MappingException {
         return instance.read(node, type);

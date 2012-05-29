@@ -3,12 +3,19 @@ package com.vonhof.babelshark.converter;
 import com.vonhof.babelshark.BabelSharkInstance;
 import com.vonhof.babelshark.BeanMapper;
 import com.vonhof.babelshark.MappedBean;
+import com.vonhof.babelshark.MappedBean.ObjectField;
 import com.vonhof.babelshark.SharkConverter;
+import com.vonhof.babelshark.annotation.TypeResolver;
 import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.impl.DefaultBeanMapper;
 import com.vonhof.babelshark.node.ObjectNode;
 import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -30,8 +37,32 @@ public class BeanConverter implements SharkConverter<Object> {
         if (!node.is(SharkNode.NodeType.MAP))
             throw new MappingException(String.format("Could not convert %s to %s",node,type));
         ObjectNode objNode = (ObjectNode) node;
-        final MappedBean<Object> map = beanMapper.getMap(type.getType());
-        final Object out = map.newInstance(objNode);
+        MappedBean<Object> map = beanMapper.getMap(type.getType());
+        Object out = null;
+        
+        //Check for type resolver
+        Class<?> clz = type.getType();
+        TypeResolver typeResolver = clz.getAnnotation(TypeResolver.class);
+        if (typeResolver != null) {
+            try {
+                ObjectField typeField = map.getField(typeResolver.field());
+                Object typeValue = bs.read(objNode.get(typeResolver.field()),typeField.getType());
+                Method resolverMethod = clz.getMethod(typeResolver.resolverMethod(),typeField.getType().getType());
+                
+                if (!Modifier.isStatic(resolverMethod.getModifiers())) {
+                    throw new Exception("Type resolver method has to be static");
+                }
+                Class<?> resolvedClz = (Class) resolverMethod.invoke(null, typeValue);
+                map = (MappedBean<Object>) beanMapper.getMap(resolvedClz);
+                out = resolvedClz.newInstance();
+            } catch (Throwable ex) {
+                throw new MappingException(ex);
+            }
+        }
+        
+        //If no type resolver found - create default instance
+        if (out == null)
+            out = map.newInstance(objNode);
         for(String field:objNode.getFields()) {
             final MappedBean.ObjectField oField = map.getField(field);
             if (oField == null || !oField.hasSetter()) continue;
