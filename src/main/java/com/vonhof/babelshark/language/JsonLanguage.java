@@ -105,6 +105,11 @@ public class JsonLanguage extends SharkLanguageBase {
             g.close();
         }
         private void writeNode(JsonGenerator g,SharkNode node) throws IOException {
+            if (node == null) {
+                g.writeNull();
+                return;
+            }
+        
             if (node instanceof ValueNode) {
                 Object value = ((ValueNode)node).getValue();
                 if (value instanceof Enum)

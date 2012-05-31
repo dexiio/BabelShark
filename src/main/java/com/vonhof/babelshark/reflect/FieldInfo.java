@@ -15,7 +15,7 @@ public class FieldInfo {
     private final ClassInfo type;
     private final Map<Class<? extends Annotation>,Annotation> annotations = new HashMap<Class<? extends Annotation>, Annotation>();
 
-    FieldInfo(Field field) {
+    public FieldInfo(Field field) {
         this.field = field;
         this.type = ClassInfo.from(this.field.getType(),this.field.getGenericType());
         readAnnotations();

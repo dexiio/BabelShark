@@ -13,7 +13,7 @@ import java.util.Map.Entry;
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
-public class ClassInfo<T> {
+public final class ClassInfo<T> {
     private final static Map<Integer,ClassInfo> cache = new HashMap<Integer, ClassInfo>();
     
     public static <T> ClassInfo<T> from(Class<T> type) {
@@ -63,11 +63,12 @@ public class ClassInfo<T> {
     private final Map<Class<? extends Annotation>,Annotation> annotations = new HashMap<Class<? extends Annotation>, Annotation>();
     
     private ClassInfo(Class<T> type) {
-        this(type, null);
+        this(type,null);
     }
     
     private ClassInfo(Class<T> type,Type genericType) {
         this.type = type;
+        
         if (genericType != null)
             this.genericTypes = readGenericTypes(genericType);
         else

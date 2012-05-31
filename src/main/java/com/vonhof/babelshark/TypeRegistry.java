@@ -1,6 +1,7 @@
 package com.vonhof.babelshark;
 
 import com.vonhof.babelshark.node.SharkType;
+import java.awt.image.ImageObserver;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,10 +27,10 @@ public class TypeRegistry<T> {
             type = SharkType.forCollection(Collection.class, clz.getComponentType());
             return get(type);
         }
-        if ((type.isCollection() || type.isMap()) 
-                && !type.getValueType().getType().equals(Object.class)) {
-            return get(SharkType.get(type.getType()));
-        }
+        if (type.isCollection())
+            return get(SharkType.get(Collection.class));
+        if (type.isMap())
+            return get(SharkType.get(Map.class));
         
         //Check super classes
         while(value == null) {
@@ -45,7 +46,9 @@ public class TypeRegistry<T> {
             Class superClz = clz.getSuperclass();
             if (superClz != null)
                 value = registry.get(SharkType.get(superClz));
-            
+            else
+                break;
+                
             clz = superClz;
         }
 

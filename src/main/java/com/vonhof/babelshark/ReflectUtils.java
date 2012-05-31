@@ -1,6 +1,7 @@
 package com.vonhof.babelshark;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Time;
@@ -12,27 +13,34 @@ import java.util.*;
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class ReflectUtils {
-    public static boolean isCollection(Class type) {
-        return (Collection.class.isAssignableFrom(type) || type.isArray());
+    public static boolean isCollection(Type type) {
+        if (!(type instanceof Class)) return false;
+        Class clz = (Class) type;
+        return (Collection.class.isAssignableFrom(clz) || clz.isArray());
     }
     
-    public static boolean isMap(Class type) {
-        return (Map.class.isAssignableFrom(type));
+    public static boolean isMap(Type type) {
+        if (!(type instanceof Class)) return false;
+        return (Map.class.isAssignableFrom((Class)type));
     }
     
-    public static boolean isMapOrCollection(Class type) {
-        return isMap(type) || isCollection(type);
+    public static boolean isMapOrCollection(Type type) {
+        if (!(type instanceof Class)) return false;
+        return isMap(type) || isCollection((Class)type);
     }
     
-    public static boolean isMappable(Class type) {
+    public static boolean isMappable(Type type) {
+        if (!(type instanceof Class)) return false;
         return isMap(type) || isBean(type);
     }
     
     public static boolean isSimple(Class type) {
         return type.isPrimitive() 
-                || isSimple((Type)type)
-                || Enum.class.isAssignableFrom(type)
-                || Calendar.class.isAssignableFrom(type);
+                    || isSimple((Type)type)
+                    || Enum.class.isAssignableFrom(type)
+                    || Calendar.class.isAssignableFrom(type);
+        
+        
     }
     public static boolean isSimple(Type type) {
         return type.equals(String.class) 
@@ -60,16 +68,19 @@ public class ReflectUtils {
                 || type.equals(BigDecimal.class) 
                 || type.equals(BigInteger.class);
     }
-    public static boolean isInstantiatable(Class type) {
-         return !type.isInterface() 
-                 && !Modifier.isAbstract( type.getModifiers()) 
-                 && !type.isAnnotation()
-                 && !type.isArray()
-                 && !type.isPrimitive()
-                 && !type.equals(Object.class);
+    public static boolean isInstantiatable(Type type) {
+        if (!(type instanceof Class)) return false;
+        Class clz = (Class) type;
+        return !clz.isInterface() 
+                 && !Modifier.isAbstract( clz.getModifiers()) 
+                 && !clz.isAnnotation()
+                 && !clz.isArray()
+                 && !clz.isPrimitive()
+                 && !clz.equals(Object.class);
     }
     
-    public static boolean isBean(Class type) {
+    public static boolean isBean(Type type) {
+        if (!(type instanceof Class)) return false;
         return !isCollection(type) && !isMap(type) && !isSimple(type);
     }
     

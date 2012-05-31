@@ -114,6 +114,7 @@ public final class ObjectNode extends SharkNode {
         return (ObjectNode) get(field);
     }
     
+    
     public <T> T getValue(String field,Class<T> valueType) {
         return getValue(field, valueType,null);
     }

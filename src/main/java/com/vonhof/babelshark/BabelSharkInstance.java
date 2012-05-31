@@ -160,6 +160,9 @@ public final class BabelSharkInstance {
 
     public <T> T read(SharkNode node, SharkType<T, ?> type) throws MappingException {
         
+        if (node == null)
+            return null;
+        
         if (node.is(SharkNode.NodeType.VALUE) 
                 && ((ValueNode)node).getValue() == null) {
             if (!ReflectUtils.isSimple(type.getType()))

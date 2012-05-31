@@ -1,10 +1,9 @@
 package com.vonhof.babelshark.node;
 
 import com.vonhof.babelshark.ReflectUtils;
-import com.vonhof.babelshark.annotation.Name;
 import com.vonhof.babelshark.reflect.ClassInfo;
 import com.vonhof.babelshark.reflect.FieldInfo;
-import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -19,6 +18,7 @@ public final class SharkType<T,U> {
     private final SharkType<U,?> valueType;
     private final boolean collection;
     private final boolean map;
+    private Boolean array = null;
 
     private SharkType(Class type,boolean collection, boolean map,SharkType valueType) {
         this.type = type;
@@ -33,6 +33,28 @@ public final class SharkType<T,U> {
 
     public boolean isMap() {
         return map;
+    }
+    public boolean isPrimitive() {
+        return ReflectUtils.isSimple(type);
+    }
+    
+    public boolean inherits(Class clz) {
+        return clz.isAssignableFrom(type);
+    }
+    
+    public boolean isArray() {
+        if (array == null)
+            return type.isArray();
+        return array;
+    }
+
+    private void setArray(Boolean array) {
+        this.array = array;
+    }
+    
+    
+    public boolean isA(Class clz) {
+        return this.type.equals(clz);
     }
 
     
@@ -104,10 +126,20 @@ public final class SharkType<T,U> {
         return new SharkType<T,Object>(type, false, false, null);
     }
     
-    public static <T,U> SharkType<T,?> get(Class<T> type) {
-        return get(type,Object.class);
-    }
     public static <T,U> SharkType<T,U> get(Class<T> type,Class<U> valueType) {
+        return get(type,SharkType.get(valueType));
+    }
+    
+    public static <T,U> SharkType<T,?> get(Class<T> type) {
+        return get(ClassInfo.from(type));
+    }
+    
+    public static SharkType get(FieldInfo field) {
+        return get(field.getType());
+    }
+    
+    
+    public static <T,U> SharkType<T,U> get(Class<T> type,SharkType<U,?> valueType) {
         if (ReflectUtils.isMap(type)) {
             return forMap(type, valueType);
         }
@@ -116,16 +148,13 @@ public final class SharkType<T,U> {
             return forCollection(type, valueType);
         }
         
-        return (SharkType<T, U>) forSimple(type);
+        return (SharkType<T, U>) new SharkType<T, U>(type,false,false,valueType);
     }
     
-    public static SharkType get(FieldInfo field) {
-        ClassInfo type = field.getType();
-        return get(type);
-    }
+    
     
     public static <T> SharkType<T,?> get(ClassInfo<T> info) {
-        Class valueType = Object.class;
+        SharkType valueType = new SharkType(Object.class, false,false,null);
         if (info.isMap() && info.getGenericTypes().length > 1) {
             valueType = type2Class(info.getGenericTypes()[1]);
             
@@ -133,20 +162,43 @@ public final class SharkType<T,U> {
         if (info.isCollection() && info.getGenericTypes().length > 0) {
             valueType = type2Class(info.getGenericTypes()[0]);
         }
+        
+        if (info.isArray()) {
+            valueType = type2Class(info.getComponentType());
+        }
         return get(info.getType(),valueType);
     }
     
-    private static Class type2Class(Type type) {
+    private static SharkType type2Class(Type type) {
         if (type instanceof ParameterizedType) {
-            ParameterizedType subType = (ParameterizedType) type;
+            final ParameterizedType subType = (ParameterizedType) type;
+            final Type[] typeArgs = subType.getActualTypeArguments();
+            if (ReflectUtils.isMap(subType.getRawType())) {
+                if (typeArgs.length > 1) 
+                    return forMap((Class)subType.getRawType(),type2Class(typeArgs[1]));
+                else
+                    return forMap((Class)subType.getRawType(),Object.class);
+            }
+            if (ReflectUtils.isCollection(subType.getRawType())) {
+                if (typeArgs.length > 0)
+                    return forCollection((Class)subType.getRawType(),type2Class(typeArgs[0]));
+                else
+                    return forCollection((Class)subType.getRawType(),Object.class);
+            }
             return type2Class(subType.getRawType());
         }
         
         if (type instanceof TypeVariable) {
-            return Object.class;
+            return SharkType.get(Object.class);
         }
         
-        return (Class) type;
+        if (type instanceof GenericArrayType) {
+            SharkType out = type2Class(((GenericArrayType)type).getGenericComponentType());
+            out.setArray(true);
+            return out;
+        }
+        
+        return SharkType.get((Class) type);
     }
     
 }
