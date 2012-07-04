@@ -41,6 +41,8 @@ public class ConvertUtils {
         }
         
         if (UUID.class.equals(type)) {
+            if (str.isEmpty())
+                return null;
             return (T) UUID.fromString(str);
         }
 

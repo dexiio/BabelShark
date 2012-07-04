@@ -11,11 +11,8 @@ import com.vonhof.babelshark.impl.DefaultBeanMapper;
 import com.vonhof.babelshark.node.ObjectNode;
 import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
