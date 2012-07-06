@@ -106,7 +106,8 @@ public class ConvertUtils {
     }
 
     public static Object convertCollection(ClassInfo type, String[] values) throws InstantiationException, IllegalAccessException {
-        if (values == null && values.length == 0)
+        if (values == null 
+                || values.length == 0)
             return null;
         
         if (type.isCollection()) {
