@@ -34,6 +34,8 @@ public class SimpleConverter implements SharkConverter<Object> {
             return o;
         
         if (clz.equals(String.class)) {
+            if (o == null) 
+                return null;
             return String.valueOf(o);
         }
         
