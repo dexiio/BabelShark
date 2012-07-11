@@ -1,10 +1,7 @@
 package com.vonhof.babelshark;
 
 import com.vonhof.babelshark.annotation.TypeResolver;
-import com.vonhof.babelshark.converter.BeanConverter;
-import com.vonhof.babelshark.converter.CollectionConverter;
-import com.vonhof.babelshark.converter.MapConverter;
-import com.vonhof.babelshark.converter.SimpleConverter;
+import com.vonhof.babelshark.converter.*;
 import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.node.ObjectNode;
 import com.vonhof.babelshark.node.SharkNode;
@@ -35,6 +32,7 @@ public final class BabelSharkInstance {
         register(Map.class, new MapConverter());
         register(Collection.class, new CollectionConverter());
         register(Object.class, new BeanConverter());
+        register(Enum.class, new EnumConverter());
     }
 
     public void register(SharkLanguage language) {
@@ -56,7 +54,6 @@ public final class BabelSharkInstance {
     
     public <T> void registerSimple(SharkConverter<T> converter) {
         //Simple built-in immutables
-        register(Enum.class, converter);
         register(Class.class, converter);
         register(UUID.class, converter);
         register(Date.class, converter);
