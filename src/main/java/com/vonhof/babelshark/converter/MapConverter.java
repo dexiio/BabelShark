@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public class MapConverter implements SharkConverter<Map> {
     
+    @Override
     public <U> Map deserialize(BabelSharkInstance bs, SharkNode node, SharkType<Map, U> type) throws MappingException {
         if (!node.is(SharkNode.NodeType.MAP)) {
             //Ignore null or empty string values
@@ -49,6 +50,7 @@ public class MapConverter implements SharkConverter<Map> {
         return out;
     }
 
+    @Override
     public SharkNode serialize(BabelSharkInstance bs, Map instance) throws MappingException {
         ObjectNode out = new ObjectNode(); 
         Map<Object,Object> map = (Map<Object,Object>)instance;

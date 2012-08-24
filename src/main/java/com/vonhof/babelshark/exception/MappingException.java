@@ -1,6 +1,6 @@
 package com.vonhof.babelshark.exception;
 
-public class MappingException extends Exception {
+public class MappingException extends RuntimeException {
 
     public MappingException() {
         

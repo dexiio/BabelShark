@@ -39,7 +39,7 @@ public class SharkTypeTest extends TestCase {
     
     private FieldInfo getField(String name) {
         try {
-            return new FieldInfo(getClass().getDeclaredField(name));
+            return new FieldInfo(ClassInfo.from(getClass()),getClass().getDeclaredField(name));
         } catch (NoSuchFieldException ex) {
             Logger.getLogger(SharkTypeTest.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SecurityException ex) {

@@ -1,8 +1,9 @@
 package com.vonhof.babelshark.reflect;
 
+import com.sun.org.apache.xerces.internal.impl.dv.xs.TypeValidator;
+import com.vonhof.babelshark.ReflectUtils;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,13 +12,33 @@ import java.util.Map;
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class FieldInfo {
+    private final ClassInfo owner;
     private final Field field;
-    private final ClassInfo type;
+    private ClassInfo type;
     private final Map<Class<? extends Annotation>,Annotation> annotations = new HashMap<Class<? extends Annotation>, Annotation>();
 
-    public FieldInfo(Field field) {
+    public FieldInfo(ClassInfo owner,Field field) {
+        this.owner = owner;
         this.field = field;
-        this.type = ClassInfo.from(this.field.getType(),this.field.getGenericType());
+        
+        Class fieldType = this.field.getType();
+        Type genType = this.field.getGenericType();
+        if (genType instanceof ParameterizedType) {
+            Type[] genTypes = ClassInfo.readGenericTypes(genType,owner);
+            this.type = ClassInfo.from(fieldType,genTypes);
+        } else {
+            if (genType instanceof TypeVariable) {
+                Type genTypeResolved = ClassInfo.resolveGenericType(genType, owner);
+                if (genTypeResolved instanceof Class)
+                    fieldType = (Class) genTypeResolved;
+            } else
+                this.type = ClassInfo.from(fieldType,ClassInfo.resolveGenericType(genType, owner));
+        }
+        
+        if (type == null)
+            this.type = ClassInfo.from(fieldType,genType);
+        
+        
         readAnnotations();
     }
     

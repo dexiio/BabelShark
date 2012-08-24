@@ -33,6 +33,7 @@ public final class BabelSharkInstance {
         register(Collection.class, new CollectionConverter());
         register(Object.class, new BeanConverter());
         register(Enum.class, new EnumConverter());
+        register(BeanMap.class, new BeanMapConverter());
     }
 
     public void register(SharkLanguage language) {
@@ -248,7 +249,7 @@ public final class BabelSharkInstance {
     }
 
     public String writeToString(Object value, String contentType) throws MappingException, IOException {
-        return new String(writeToByteArray(value, contentType));
+        return new String(writeToByteArray(value, contentType),"UTF-8");
     }
 
     public byte[] writeToByteArray(Object value, String contentType) throws MappingException, IOException {

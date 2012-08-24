@@ -2,11 +2,9 @@ package com.vonhof.babelshark.reflect;
 
 import com.thoughtworks.paranamer.AdaptiveParanamer;
 import com.thoughtworks.paranamer.Paranamer;
+import com.vonhof.babelshark.ReflectUtils;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -16,19 +14,38 @@ import java.util.*;
 public class MethodInfo {
     private static final Paranamer paranamer = new AdaptiveParanamer();;
     
+    private final ClassInfo owner;
     private final Method method;
     private final ClassInfo returnType;
     private final Map<Class<? extends Annotation>,Annotation> annotations = new HashMap<Class<? extends Annotation>, Annotation>();
     private final Map<String,Parameter> parameters = new LinkedHashMap<String, Parameter>();
 
-    MethodInfo(Method method) {
+    MethodInfo(ClassInfo owner,Method method) {
+        this.owner = owner;
         this.method = method;
-        returnType = ClassInfo.from(method.getReturnType(),method.getGenericReturnType());
+        
+        Class tmpReturnType = method.getReturnType();
+        Type genType = method.getGenericReturnType();
+        
+        if (genType instanceof TypeVariable) {
+            Type typeVariableType = ClassInfo.resolveGenericType(genType, owner);
+            if (typeVariableType instanceof Class) {
+                tmpReturnType = (Class) typeVariableType;
+            }            
+        }
+        
+        if (genType instanceof ParameterizedType) {
+            returnType = ClassInfo.from(tmpReturnType,ClassInfo.readGenericTypes(genType, owner));
+        } else {
+            returnType = ClassInfo.from(tmpReturnType,genType);
+        }
         
         readParameters();
         
         readAnnotations();
     }
+    
+    
     
     private void readAnnotations() {
         for(Annotation a:method.getDeclaredAnnotations()) {
@@ -51,9 +68,23 @@ public class MethodInfo {
         
         for(int i = 0;i < parmNames.length;i++) {
             Class type = parmTypes[i];
+            
             Type genParmType = genParmTypes[i];
+            if (genParmType instanceof TypeVariable) {
+                genParmType = owner.getTypeVariableType((TypeVariable)genParmType);
+                if (genParmType instanceof Class) {
+                    type = (Class)genParmType;
+                }
+            }
+            ClassInfo classInfo;
+            if (genParmType instanceof ParameterizedType) {
+                classInfo = ClassInfo.from(type,ClassInfo.readGenericTypes(genParmType, owner));
+            } else {
+                classInfo = ClassInfo.from(type,genParmType);
+            }
+            
             Annotation[] annos  = parmAnnotations[i];
-            ClassInfo classInfo = ClassInfo.from(type,genParmType);
+            
             Parameter parm = new Parameter(parmNames[i],classInfo, annos);
             parameters.put(parm.getName(), parm);
         }
