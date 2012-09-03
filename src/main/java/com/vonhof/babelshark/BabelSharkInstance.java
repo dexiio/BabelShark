@@ -236,7 +236,7 @@ public final class BabelSharkInstance {
     public void write(Output output, Object value) throws MappingException, IOException {
         ObjectWriter writer = getWriter(output.getContentType());
         if (writer == null) {
-            throw new MappingException(String.format("Unknown content type:", output.getContentType()));
+            throw new MappingException(String.format("Unknown content type: %s", output.getContentType()));
         }
         SharkNode map = write(value);
         writer.write(output, map);

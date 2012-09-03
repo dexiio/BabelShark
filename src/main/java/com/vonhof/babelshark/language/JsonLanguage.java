@@ -22,23 +22,27 @@ public class JsonLanguage extends SharkLanguageBase {
     private final Writer writer = new Writer();
 
     public JsonLanguage() {
-        super("json", new String[]{"application/json","text/json"});
+        super("json", "application/json","text/json");
     }
     
+    @Override
     public ObjectReader getObjectReader() {
         return reader;
     }
 
+    @Override
     public ObjectWriter getObjectWriter() {
         return writer;
     }
     
     public class Reader implements ObjectReader {
 
+        @Override
         public String[] getContentTypes() {
             return JsonLanguage.this.getContentTypes();
         }
 
+        @Override
         public SharkNode read(Input input) throws IOException {
             JsonParser parser = jsonFactory.createJsonParser(input.getStream());
             parser.setCodec(om);
