@@ -274,11 +274,22 @@ public final class BabelSharkInstance {
     }
 
     public <T> T convert(Object value, Class<T> type) throws MappingException {
-        if (SharkNode.class.isAssignableFrom(type))
+        return convert(value, SharkType.get(type));
+    }
+    
+    public <T> T convert(Object value, ClassInfo<T> type) throws MappingException {
+        return convert(value, SharkType.get(type));
+    }
+    
+    public <T,U> T convert(Object value, SharkType<T,U> type) throws MappingException {
+        if (value == null) 
+            return null;
+        if (type.isA(SharkNode.class))
             return (T) write(value);
         if (SharkNode.class.isAssignableFrom(value.getClass()))
             return read((SharkNode)value, type);
-        
+        if (type.isA(value.getClass()))
+            return (T)value;
         //None of the arguments are nodes - convert to node and convert back into value
         SharkNode node = write(value);
         return read(node,type);

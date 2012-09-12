@@ -5,6 +5,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -95,11 +97,14 @@ public final class ClassInfo<T> {
     }
 
     private void read() {
-
-        readTypeVariables();
-        readFields();
-        readMethods();
-        readAnnotations();
+        try {
+            readTypeVariables();
+            readFields();
+            readMethods();
+            readAnnotations();
+        } catch(Throwable ex) {
+            Logger.getLogger(getClass().getName()).log(Level.WARNING,String.format("Could not read class: %s",type),ex);
+        }
     }
 
     private void readTypeVariables() {
