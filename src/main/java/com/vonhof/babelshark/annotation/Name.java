@@ -11,6 +11,7 @@ import java.lang.annotation.*;
 @Documented
 @Target(value={ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD})
 @Retention(value=RetentionPolicy.RUNTIME)
+@Inherited
 public @interface Name {
     /**
      * Name of the field

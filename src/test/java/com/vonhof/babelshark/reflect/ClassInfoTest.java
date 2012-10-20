@@ -1,5 +1,6 @@
 package com.vonhof.babelshark.reflect;
 
+import com.vonhof.babelshark.annotation.Name;
 import com.vonhof.babelshark.node.SharkType;
 import com.vonhof.babelshark.reflect.MethodInfo.Parameter;
 import java.lang.reflect.*;
@@ -17,6 +18,7 @@ public class ClassInfoTest extends TestCase {
 
     private final ClassInfo genericBeanInfo = ClassInfo.from(ExtendedGenericBean.class);;
     private final ClassInfo crazyBeanInfo = ClassInfo.from(CrazyBean.class);
+    private final ClassInfo extendedCrazyBeanInfo = ClassInfo.from(ExtendedCrazyBean.class);
 
     public ClassInfoTest(String testName) {
         super(testName);
@@ -77,20 +79,20 @@ public class ClassInfoTest extends TestCase {
     public void test_can_read_generic_field_type() throws Exception {
         FieldInfo field = genericBeanInfo.getField("genField");
         assertNotNull("Can find field", field);
-        assertEquals("Can determine type of generic field", String.class, field.getType().getType());
+        assertEquals("Can determine type of generic field", ExtendedCrazyBean.class, field.getType().getType());
     }
     
     public void test_can_read_generic_parameterized_field_type() throws Exception {
         FieldInfo field = genericBeanInfo.getField("genMap");
         assertNotNull("Can find field", field);
-        assertEquals("Can determine type of generic field", String.class, field.getType().getGenericTypes()[1]);
+        assertEquals("Can determine type of generic field", ExtendedCrazyBean.class, field.getType().getGenericTypes()[1]);
     }
 
     public void test_can_read_generic_method() throws Exception {
-        MethodInfo method = genericBeanInfo.getMethodByClassParms("doSomething", String.class);
+        MethodInfo method = genericBeanInfo.getMethodByClassParms("doSomething", ExtendedCrazyBean.class);
         assertNotNull("Can find method", method);
-        assertEquals("Can determine type of generic parm", String.class, method.getParameter("val").getType().getType());
-        assertEquals("Can determine type of generic return type", String.class, method.getReturnType().getType());
+        assertEquals("Can determine type of generic parm", ExtendedCrazyBean.class, method.getParameter("val").getType().getType());
+        assertEquals("Can determine type of generic return type", ExtendedCrazyBean.class, method.getReturnType().getType());
     }
     
     public void test_can_read_generic_paremeterized_method() throws Exception {
@@ -99,14 +101,41 @@ public class ClassInfoTest extends TestCase {
         assertEquals("Can determine type of generic parm", Map.class, method.getParameter("val").getType().getType());
         assertEquals("Can determine type of generic return type", Map.class, method.getReturnType().getType());
         
-        assertEquals("Can determine type of generic parameter in return type", String.class, 
+        assertEquals("Can determine type of generic parameter in return type", ExtendedCrazyBean.class, 
                         method.getReturnType().getGenericTypes()[1]);
-        assertEquals("Can determine type of generic parameter in parm type", String.class, 
+        assertEquals("Can determine type of generic parameter in parm type", ExtendedCrazyBean.class, 
                         method.getParameter("val").getType().getGenericTypes()[1]);
         
     }
+    
+    
+    public void test_can_read_inherited_annotations() throws Exception {
+        MethodInfo getSomeList = extendedCrazyBeanInfo.getMethodByClassParms("getSomeList");
+        assertNotNull("Can find method", getSomeList);
+        Name nameAnno = getSomeList.getAnnotation(Name.class);
+        assertNotNull("Has method annotation",nameAnno);
+        assertEquals("Has method annotation value","crazyName",nameAnno.value());
+        
+        
+        MethodInfo setSomeList = extendedCrazyBeanInfo.getMethodByClassParms("setSomeList",List.class);
+        assertNotNull("Can find method", setSomeList);
+        nameAnno = setSomeList.getParameter("someList").getAnnotation(Name.class);
+        assertNotNull("Has parm annotation",nameAnno);
+        assertEquals("Has parm annotation value","someparmname",nameAnno.value());
+        
+        
+        FieldInfo stringArray = extendedCrazyBeanInfo.getField("stringArray");
+        assertNotNull("Can find field", stringArray);
+        nameAnno = stringArray.getAnnotation(Name.class);
+        assertNotNull("Has field annotation",nameAnno);
+        assertEquals("Has field annotation value","someProperty",nameAnno.value());
+    }
+    
+    public void test_ignores_overridden_methods() {
+        assertEquals(2,genericBeanInfo.getMethods().size());
+    }
 
-    public static class GenericBean<T> {
+    public static class GenericBean<T extends CrazyBean> {
 
         public T genField;
         
@@ -121,8 +150,12 @@ public class ClassInfoTest extends TestCase {
         }
     }
     
-    public static class ExtendedGenericBean extends GenericBean<String> {
+    public static class ExtendedGenericBean extends GenericBean<ExtendedCrazyBean> {
 
+        @Override
+        public ExtendedCrazyBean doSomething(ExtendedCrazyBean val) {
+            return super.doSomething(val);
+        }
     }
 
     public static class CrazyBean {
@@ -130,6 +163,8 @@ public class ClassInfoTest extends TestCase {
         private List<String> someList = new ArrayList<String>();
         private Map<String, Integer> someMap = new HashMap<String, Integer>();
         private int[] intArray = {1, 2, 3, 4, 5};
+        
+        @Name("someProperty")
         private String[] stringArray = {"sdf", "sdgfhtd"};
         private String someHiddenField = "test";
 
@@ -149,6 +184,7 @@ public class ClassInfoTest extends TestCase {
             this.someHiddenField = someHiddenField;
         }
 
+        @Name("crazyName")
         public List<String> getSomeList() {
             return someList;
         }
@@ -161,7 +197,7 @@ public class ClassInfoTest extends TestCase {
             this.someList = someList;
         }
 
-        public void setSomeList(List<String> someList) {
+        public void setSomeList(@Name("someparmname") List<String> someList) {
             this.someList = someList;
         }
 
@@ -175,6 +211,19 @@ public class ClassInfoTest extends TestCase {
 
         public String[] getStringArray() {
             return stringArray;
+        }
+    }
+    
+    public static class ExtendedCrazyBean extends CrazyBean {
+
+        @Override
+        public List<String> getSomeList() {
+            return super.getSomeList();
+        }
+
+        @Override
+        public void setSomeList(List<String> someList) {
+            super.setSomeList(someList);
         }
     }
 }

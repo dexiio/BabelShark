@@ -6,6 +6,8 @@ import com.vonhof.babelshark.ReflectUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,6 +21,7 @@ public class MethodInfo {
     private final ClassInfo returnType;
     private final Map<Class<? extends Annotation>,Annotation> annotations = new HashMap<Class<? extends Annotation>, Annotation>();
     private final Map<String,Parameter> parameters = new LinkedHashMap<String, Parameter>();
+    private final List<Method> inheritance = new LinkedList<Method>();
 
     MethodInfo(ClassInfo owner,Method method) {
         this.owner = owner;
@@ -40,22 +43,76 @@ public class MethodInfo {
             returnType = ClassInfo.from(tmpReturnType,genType);
         }
         
+        readInheritance();
+        
         readParameters();
         
         readAnnotations();
     }
     
+    private void readInheritance() {
+        Method m = method;
+        inheritance.add(m);
+        Class<?>[] parms = method.getParameterTypes();
+        parentTraverse:
+        while(m != null) {
+            Class<?> parent = m.getDeclaringClass().getSuperclass();
+            
+            if (parent == null) 
+                break;
+            
+            m = null;
+            
+            //Look for overridden method
+            
+            lookupLoop:
+            for(Method pM:parent.getDeclaredMethods()) {
+                //Names must match
+                if (!pM.getName().equals(method.getName())) 
+                    continue;
+                //Parms must match
+                if (pM.getParameterTypes().length != parms.length)
+                    continue;
+                
+                //Return type must match
+                if (!pM.getReturnType().isAssignableFrom(method.getReturnType()))
+                    continue;
+                
+                //Compare parameters
+                Class<?>[] pParms = pM.getParameterTypes();
+                for(int i = 0; i < parms.length;i++) {
+                    if (pParms[i].equals(parms[i])
+                            || pParms[i].isAssignableFrom(parms[i]))
+                        continue;
+                    
+                    continue lookupLoop;
+                }
+                m = pM;
+                inheritance.add(m);
+                continue parentTraverse;
+            }
+            break;
+        }
+    }
     
+    public boolean isOverrideOf(Method m) {
+        return inheritance.contains(m);
+    }
     
     private void readAnnotations() {
-        for(Annotation a:method.getDeclaredAnnotations()) {
-            annotations.put(a.annotationType(), a);
+        for(Method m:inheritance) {
+            for(Annotation a:m.getDeclaredAnnotations()) {
+                if (annotations.containsKey(a.annotationType()))
+                    continue;
+                annotations.put(a.annotationType(), a);
+            }
         }
     }
     
     public boolean hasAnnotation(Class<? extends Annotation> aType) {
         return annotations.containsKey(aType);
     }
+    
     public <T extends Annotation> T getAnnotation(Class<T> aType) {
         return (T) annotations.get(aType);
     }
@@ -64,7 +121,6 @@ public class MethodInfo {
         String[] parmNames = paranamer.lookupParameterNames(method,false);
         Class<?>[] parmTypes = method.getParameterTypes();
         Type[] genParmTypes = method.getGenericParameterTypes();
-        Annotation[][] parmAnnotations = method.getParameterAnnotations();
         
         for(int i = 0;i < parmNames.length;i++) {
             Class type = parmTypes[i];
@@ -83,7 +139,12 @@ public class MethodInfo {
                 classInfo = ClassInfo.from(type,genParmType);
             }
             
-            Annotation[] annos  = parmAnnotations[i];
+            Annotation[] annos = new Annotation[0];
+
+            for(Method m:inheritance) {
+                annos = m.getParameterAnnotations()[i];
+                if (annos.length > 0) break;
+            }
             
             Parameter parm = new Parameter(parmNames[i],classInfo, annos);
             parameters.put(parm.getName(), parm);
@@ -179,6 +240,24 @@ public class MethodInfo {
         sb.append(")");
         return sb.toString();
     }
+    
+    public String toSignature() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%s(",getName()));
+        boolean first = true;
+        for(Parameter p:parameters.values()) {
+            if (first)
+                first = false;
+            else
+                sb.append(",");
+            
+            sb.append(p.toString());
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+    
+    
     
     public static class Parameter {
         private final String name;

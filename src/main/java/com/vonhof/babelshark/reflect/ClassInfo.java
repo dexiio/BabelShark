@@ -235,7 +235,8 @@ public final class ClassInfo<T> {
     private void readFields() {
 
         Class clz = type;
-        while (true) {
+        
+        while(true) {
             if (clz == null
                     || clz.equals(Object.class)
                     || ReflectUtils.isSimple(clz)) {
@@ -245,37 +246,57 @@ public final class ClassInfo<T> {
             Field[] clzFields = clz.getDeclaredFields();
 
             for (int i = 0; i < clzFields.length; i++) {
-                FieldInfo field = new FieldInfo(this,clzFields[i]);
+                Field f = clzFields[i];
+                
+                FieldInfo field = new FieldInfo(this,f);
                 if (!fields.containsKey(field.getName())) {
                     fields.put(field.getName(), field);
                 }
             }
-
+            
             clz = clz.getSuperclass();
         }
     }
 
     private void readMethods() {
         Class clz = type;
-        while (true) {
+        
+        Set<String> uniqueMethods = new HashSet<String>();
+        
+        while(true) {
             if (clz == null
                     || clz.equals(Object.class)
                     || ReflectUtils.isSimple(clz)) {
-                break;
+                return;
             }
 
             Method[] clzMethods = clz.getDeclaredMethods();
 
+            methodLoop:
             for (int i = 0; i < clzMethods.length; i++) {
-                clzMethods[i].isBridge();
-                MethodInfo method = new MethodInfo(this,clzMethods[i]);
+                Method m = clzMethods[i];
+                if (m.isSynthetic() || m.isBridge()) 
+                    continue;
+                
+                MethodInfo method = new MethodInfo(this,m);
+                String signature = method.toSignature();
+                
+                if (uniqueMethods.contains(signature))
+                    continue;
+                
+                for(MethodInfo oldM:methods) {
+                    if (oldM.isOverrideOf(m))
+                        continue methodLoop;
+                }
+
+                uniqueMethods.add(signature);
                 methods.add(method);
             }
-
+            
             clz = clz.getSuperclass();
         }
-
     }
+    
 
     private void readAnnotations() {
         for (Annotation a : type.getAnnotations()) {
