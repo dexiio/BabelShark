@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import junit.framework.TestCase;
 
 /**
@@ -134,6 +137,32 @@ public class ClassInfoTest extends TestCase {
     public void test_ignores_overridden_methods() {
         assertEquals(2,genericBeanInfo.getMethods().size());
     }
+    
+    
+    public void test_concurrent_reading() throws InterruptedException {
+        final ConcurrentLinkedQueue<String> results = new ConcurrentLinkedQueue<String>();
+        Runnable r1 = new Runnable() {
+            @Override
+            public void run() {
+                ClassInfo<SimpleBean> info = ClassInfo.from(SimpleBean.class);
+                assertNotNull(info.getField("property"));
+                results.add("result");
+            }
+        };
+        
+        Thread t1 = new Thread(r1);
+        Thread t2 = new Thread(r1);
+        Thread t3 = new Thread(r1);
+        t1.start();
+        t2.start();
+        t3.start();
+        
+        t1.join();
+        t2.join();
+        t3.join();
+        
+        assertEquals("Can call ClassInfo.from concurrently",3, results.size());
+    }
 
     public static class GenericBean<T extends CrazyBean> {
 
@@ -226,4 +255,17 @@ public class ClassInfoTest extends TestCase {
             super.setSomeList(someList);
         }
     }
+    
+    public static class SimpleBean {
+        private String property;
+
+        public String getProperty() {
+            return property;
+        }
+
+        public void setProperty(String property) {
+            this.property = property;
+        }
+    }
+
 }

@@ -18,13 +18,23 @@ public final class ClassInfo<T> {
 
     public static <T> ClassInfo<T> from(Class<T> type) {
         int hash = hash(type);
+
         if (cache.containsKey(hash)) {
-            return cache.get(hash);
+            ClassInfo classInfo = cache.get(hash);
+            if (classInfo.isReady()) {
+                return classInfo;
+            }
+            
+            synchronized (classInfo) {
+                return classInfo;
+            }
         }
         ClassInfo classInfo = new ClassInfo(type);
-        cache.put(hash, classInfo);
-        classInfo.read();
-        return classInfo;
+        synchronized (classInfo) {
+            cache.put(hash, classInfo);
+            classInfo.read();
+            return classInfo;
+        }
     }
 
     public static ClassInfo[] fromAll(Class... types) {
@@ -45,6 +55,7 @@ public final class ClassInfo<T> {
         classInfo.read();
         return classInfo;
     }
+
     public static <T> ClassInfo<T> from(Class<T> type, Type genericType) {
         Type[] genTypes = readGenericTypes(genericType);
         int hash = hash(type, genTypes);
@@ -73,12 +84,13 @@ public final class ClassInfo<T> {
     private final List<MethodInfo> methods = new ArrayList<MethodInfo>();
     private final Map<Class<? extends Annotation>, Annotation> annotations = new HashMap<Class<? extends Annotation>, Annotation>();
     private final Map<TypeVariable, Type> typeVariableMap = new HashMap<TypeVariable, Type>();
+    private volatile boolean ready;
 
     private ClassInfo(Class<T> type) {
         this.type = type;
         this.genericTypes = new Type[0];
     }
-    
+
     private ClassInfo(Class<T> type, Type[] genericTypes) {
         this.type = type;
         this.genericTypes = genericTypes;
@@ -102,9 +114,15 @@ public final class ClassInfo<T> {
             readFields();
             readMethods();
             readAnnotations();
-        } catch(Throwable ex) {
-            Logger.getLogger(getClass().getName()).log(Level.WARNING,String.format("Could not read class: %s",type),ex);
+        } catch (Throwable ex) {
+            Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Could not read class: %s", type), ex);
+        } finally {
+            ready = true;
         }
+    }
+
+    public boolean isReady() {
+        return ready;
     }
 
     private void readTypeVariables() {
@@ -136,7 +154,7 @@ public final class ClassInfo<T> {
             clz = clz.getEnclosingClass();
         }
     }
-    
+
     protected final Type getTypeVariableType(TypeVariable typeVar) {
         return typeVariableMap.get(typeVar);
     }
@@ -197,7 +215,7 @@ public final class ClassInfo<T> {
     }
 
     protected static Type[] readGenericTypes(Type genType) {
-        
+
         if (genType instanceof ParameterizedType) {
             ParameterizedType aType = (ParameterizedType) genType;
             return aType.getActualTypeArguments();
@@ -205,29 +223,29 @@ public final class ClassInfo<T> {
         if (genType instanceof Class) {
             return new Type[]{genType};
         }
-        
+
         return new Type[0];
     }
-    
-    protected static Type resolveGenericType(Type genType,ClassInfo owner) {
+
+    protected static Type resolveGenericType(Type genType, ClassInfo owner) {
         if (genType instanceof TypeVariable) {
-            Type typeVariableType = owner.getTypeVariableType((TypeVariable)genType);
+            Type typeVariableType = owner.getTypeVariableType((TypeVariable) genType);
             if (typeVariableType != null) {
                 return typeVariableType;
             }
-        }          
+        }
         return genType;
     }
-    
-    protected static Type[] resolveGenericTypes(Type[] genTypes,ClassInfo owner) {
+
+    protected static Type[] resolveGenericTypes(Type[] genTypes, ClassInfo owner) {
         Type[] out = new Type[genTypes.length];
-        for(int i = 0; i < genTypes.length;i++) {
-            out[i] = resolveGenericType(genTypes[i],owner);
+        for (int i = 0; i < genTypes.length; i++) {
+            out[i] = resolveGenericType(genTypes[i], owner);
         }
         return out;
     }
-    
-    protected static Type[] readGenericTypes(Type genType,ClassInfo owner) {
+
+    protected static Type[] readGenericTypes(Type genType, ClassInfo owner) {
         Type[] genTypes = readGenericTypes(genType);
         return resolveGenericTypes(genTypes, owner);
     }
@@ -235,8 +253,8 @@ public final class ClassInfo<T> {
     private void readFields() {
 
         Class clz = type;
-        
-        while(true) {
+
+        while (true) {
             if (clz == null
                     || clz.equals(Object.class)
                     || ReflectUtils.isSimple(clz)) {
@@ -247,23 +265,23 @@ public final class ClassInfo<T> {
 
             for (int i = 0; i < clzFields.length; i++) {
                 Field f = clzFields[i];
-                
-                FieldInfo field = new FieldInfo(this,f);
+
+                FieldInfo field = new FieldInfo(this, f);
                 if (!fields.containsKey(field.getName())) {
                     fields.put(field.getName(), field);
                 }
             }
-            
+
             clz = clz.getSuperclass();
         }
     }
 
     private void readMethods() {
         Class clz = type;
-        
+
         Set<String> uniqueMethods = new HashSet<String>();
-        
-        while(true) {
+
+        while (true) {
             if (clz == null
                     || clz.equals(Object.class)
                     || ReflectUtils.isSimple(clz)) {
@@ -275,28 +293,30 @@ public final class ClassInfo<T> {
             methodLoop:
             for (int i = 0; i < clzMethods.length; i++) {
                 Method m = clzMethods[i];
-                if (m.isSynthetic() || m.isBridge()) 
+                if (m.isSynthetic() || m.isBridge()) {
                     continue;
-                
-                MethodInfo method = new MethodInfo(this,m);
+                }
+
+                MethodInfo method = new MethodInfo(this, m);
                 String signature = method.toSignature();
-                
-                if (uniqueMethods.contains(signature))
+
+                if (uniqueMethods.contains(signature)) {
                     continue;
-                
-                for(MethodInfo oldM:methods) {
-                    if (oldM.isOverrideOf(m))
+                }
+
+                for (MethodInfo oldM : methods) {
+                    if (oldM.isOverrideOf(m)) {
                         continue methodLoop;
+                    }
                 }
 
                 uniqueMethods.add(signature);
                 methods.add(method);
             }
-            
+
             clz = clz.getSuperclass();
         }
     }
-    
 
     private void readAnnotations() {
         for (Annotation a : type.getAnnotations()) {

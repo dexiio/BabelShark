@@ -56,6 +56,8 @@ public class CollectionConverter implements SharkConverter<Object> {
                     clz = HashSet.class;
                 } else if (List.class.isAssignableFrom(clz)) {
                     clz = ArrayList.class;
+                } else if (Collection.class.isAssignableFrom(clz)) {
+                    clz = ArrayList.class;
                 } else {
                     throw new MappingException(String.format("Unknown collection type: %s", type));
                 }
