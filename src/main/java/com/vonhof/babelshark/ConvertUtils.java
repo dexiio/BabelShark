@@ -25,8 +25,13 @@ public class ConvertUtils {
             return (T) str;
         if (boolean.class.equals(type) || Boolean.class.equals(type))
             return (T) Boolean.valueOf(str);
-        if (int.class.equals(type) || Integer.class.equals(type))
+
+        if (int.class.equals(type) || Integer.class.equals(type)) {
+            if (str.isEmpty())
+                str = "0";
             return (T) Integer.valueOf(str);
+        }
+
         if (float.class.equals(type) || Float.class.equals(type))
             return (T) Float.valueOf(str);
         if (double.class.equals(type) || Double.class.equals(type))
