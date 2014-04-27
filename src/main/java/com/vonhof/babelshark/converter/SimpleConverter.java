@@ -8,6 +8,8 @@ import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
 import com.vonhof.babelshark.node.ValueNode;
 
+import java.util.regex.Pattern;
+
 /**
  *
  * @author Henrik Hofmeister <@vonhofdk>
@@ -38,6 +40,11 @@ public class SimpleConverter implements SharkConverter<Object> {
                 return null;
             return String.valueOf(o);
         }
+
+        if (o instanceof Number) {
+            Number number = (Number) o;
+            return ConvertUtils.convert(number, clz);
+        }
         
         if (o instanceof String) {
             try {
@@ -46,10 +53,7 @@ public class SimpleConverter implements SharkConverter<Object> {
                 throw new MappingException(ex);
             }
         }
-        if (o instanceof Number) {
-            Number number = (Number) o;
-            return ConvertUtils.convert(number, clz);
-        }
+
         
         if (clz.equals(Boolean.TYPE) 
                     || Boolean.class.equals(clz)) {

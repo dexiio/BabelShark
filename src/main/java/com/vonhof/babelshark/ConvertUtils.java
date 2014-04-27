@@ -1,5 +1,6 @@
 package com.vonhof.babelshark;
 
+import com.vonhof.babelshark.converter.SimpleConverter;
 import com.vonhof.babelshark.reflect.ClassInfo;
 import java.lang.reflect.Array;
 import java.sql.Time;
@@ -59,6 +60,9 @@ public class ConvertUtils {
             }
         }
         if (Date.class.equals(type)) {
+            if (isNumberString(str)) {
+                return (T) new Date(Long.valueOf(str));
+            }
             try {
                 return (T) DateFormat.getDateTimeInstance().parse(str);
             } catch (ParseException ex) {
@@ -136,5 +140,11 @@ public class ConvertUtils {
         if (values.length > 0)
             return values[0];
         return null;
+    }
+
+
+
+    public static boolean isNumberString(String o) {
+        return o.matches("^[1-9][0-9]*$");
     }
 }
