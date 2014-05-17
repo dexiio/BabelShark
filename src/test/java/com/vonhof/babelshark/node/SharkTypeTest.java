@@ -76,7 +76,7 @@ public class SharkTypeTest extends TestCase {
         assertEquals("Level 1",Map.class,type.getValueType().getType());
         assertEquals("Level 2",List.class,type.getValueType().getValueType().getType());
         assertEquals("Level 3",Collection.class,type.getValueType().getValueType().getValueType().getType());
-        Class actualValueType = type.getValueType().getValueType().getValueType().getValueType().getType();
+        Class actualValueType = type.getValueType().getValueType().getValueType().getValueType().getValueType().getType();
         assertTrue("Actual value",Boolean.class.isAssignableFrom(actualValueType));
         assertTrue("Actual value is array",type.getValueType().getValueType().getValueType().getValueType().isArray());
     }
