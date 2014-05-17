@@ -1,15 +1,24 @@
 package com.vonhof.babelshark.language;
 
-import com.vonhof.babelshark.*;
+import com.vonhof.babelshark.Input;
+import com.vonhof.babelshark.ObjectReader;
+import com.vonhof.babelshark.ObjectWriter;
+import com.vonhof.babelshark.Output;
+import com.vonhof.babelshark.SharkLanguageBase;
 import com.vonhof.babelshark.node.ArrayNode;
 import com.vonhof.babelshark.node.ObjectNode;
 import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.ValueNode;
 import java.io.IOException;
 import java.util.Iterator;
-import org.codehaus.jackson.*;
+
+import org.apache.commons.io.IOUtils;
+import org.codehaus.jackson.JsonEncoding;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
-import sun.misc.IOUtils;
 
 /**
  *
@@ -44,14 +53,12 @@ public class JsonLanguage extends SharkLanguageBase {
 
         @Override
         public SharkNode read(Input input) throws IOException {
-            JsonParser parser = jsonFactory.createJsonParser(input.getStream());
-            parser.setCodec(om);
+            String json = IOUtils.toString(input.getStream(), "UTF-8");
             try {
-                JsonNode node = parser.readValueAsTree();
+                JsonNode node = om.readTree(json);
                 return jsonToShark(node);
             } catch (Throwable ex) {
-                byte[] body = IOUtils.readFully(input.getStream(),0, true);
-                throw new IOException(new String(body),ex);
+                throw new IOException(IOUtils.toString(input.getStream(), "UTF-8"),ex);
             }
         }
         private SharkNode jsonToShark(JsonNode node) {

@@ -60,6 +60,10 @@ public class ConvertUtils {
             }
         }
         if (Date.class.equals(type)) {
+            if (str.trim().isEmpty()) {
+                return null;
+            }
+
             if (isNumberString(str)) {
                 return (T) new Date(Long.valueOf(str));
             }
@@ -129,8 +133,35 @@ public class ConvertUtils {
                 }
                 return arrayValues;
             } else {
-                Collection list = (Collection) type.newInstance();
-                list.addAll(Arrays.asList(values));
+                Collection list = null;
+                if (type.isInstantiatable()) {
+                    list = (Collection) type.newInstance();
+                } else {
+                    if (type.isA(List.class) || type.isA(Collection.class)) {
+                        list = new ArrayList();
+                    } else if (type.isA(Deque.class)) {
+                        list = new LinkedList();
+                    } else if (type.isA(Stack.class)) {
+                        list = new Stack();
+                    } else if (type.isA(Set.class)) {
+                        list = new HashSet();
+                    } else if (type.isA(Queue.class)) {
+                        list = new PriorityQueue();
+                    }
+                }
+
+                Class valueType = type.getGenericTypes().length > 0 ? (Class) type.getGenericTypes()[0] : Object.class;
+
+                if (values.length == 1 && values[0].contains(",")) {
+                    values = values[0].split(",");
+                }
+
+                for(String val : values) {
+                    if (val == null || val.isEmpty()) {
+                        continue;
+                    }
+                    list.add(ConvertUtils.convert(val, valueType));
+                }
                 return list;
             }
 
