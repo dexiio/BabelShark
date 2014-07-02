@@ -31,8 +31,9 @@ public class BeanConverter implements SharkConverter<Object> {
     }
 
     public <U> Object deserialize(BabelSharkInstance bs, SharkNode node, SharkType<Object, U> type) throws MappingException {
-        if (!node.is(SharkNode.NodeType.MAP))
+        if (!node.is(SharkNode.NodeType.MAP)) {
             throw new MappingException(String.format("Could not convert %s to %s",node,type));
+        }
         ObjectNode objNode = (ObjectNode) node;
         MappedBean<Object> map = beanMapper.getMap(type.getType());
         Object out = null;

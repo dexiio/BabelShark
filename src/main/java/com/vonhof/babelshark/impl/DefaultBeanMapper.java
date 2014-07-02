@@ -25,8 +25,10 @@ public class DefaultBeanMapper implements BeanMapper {
             return obj;
         
         //Not a bean
-        if (!type.isBean())
+        if (!type.isBean()) {
             throw new MappingException(String.format("Cannot get bean map for class %s. Not a bean!",type.getName()));
+        }
+
         
         if (!type.isInstantiatable()) {
             throw new MappingException(String.format("Cannot instantiate bean: %s",type.getName()));

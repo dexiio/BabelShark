@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Singleton instance of the babelshark engine
@@ -21,11 +23,15 @@ import java.util.*;
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public final class BabelSharkInstance {
+    private static final Logger log = Logger.getLogger(BabelSharkInstance.class.getName());
+
     private final Map<String, SharkLanguage> languages = new HashMap<String, SharkLanguage>();
     private final Map<String, ObjectReader> readers = new HashMap<String, ObjectReader>();
     private final Map<String, ObjectWriter> writers = new HashMap<String, ObjectWriter>();
     private final TypeRegistry<SharkSerializer> serializers = new TypeRegistry<SharkSerializer>();
     private final TypeRegistry<SharkDeserializer> deserializers = new TypeRegistry<SharkDeserializer>();
+
+    private boolean throwOnInvalidMapping = true;
     
     public BabelSharkInstance() {
         registerSimple(new SimpleConverter());
@@ -34,6 +40,22 @@ public final class BabelSharkInstance {
         register(Object.class, new BeanConverter());
         register(Enum.class, new EnumConverter());
         register(BeanMap.class, new BeanMapConverter());
+    }
+
+    public boolean doThrowOnInvalidMapping() {
+        return throwOnInvalidMapping;
+    }
+
+    public void setThrowOnInvalidMapping(boolean throwOnInvalidMapping) {
+        this.throwOnInvalidMapping = throwOnInvalidMapping;
+    }
+
+    public void reportError(String error) {
+        if (doThrowOnInvalidMapping()) {
+            throw new MappingException(error);
+        } else {
+            log.log(Level.WARNING, error, new MappingException(error));
+        }
     }
 
     public void register(SharkLanguage language) {
@@ -130,7 +152,8 @@ public final class BabelSharkInstance {
     public <T> T read(Input input, SharkType<T, ?> type) throws MappingException, IOException {
         ObjectReader reader = getReader(input.getContentType());
         if (reader == null) {
-            throw new MappingException(String.format("Unknown content type: %s", input.getContentType()));
+            reportError(String.format("Unknown content type: %s", input.getContentType()));
+            return null;
         }
         SharkNode map = reader.read(input);
         return read(map, type);
@@ -192,7 +215,8 @@ public final class BabelSharkInstance {
             return (T) converter.deserialize(this,node,type);
         }
         
-        throw new MappingException(String.format("No deserializer could be found for %s",type));
+        reportError(String.format("No deserializer could be found for %s",type));
+        return null;
     }
 
     public <T> T read(SharkNode node, Class<T> clz) throws MappingException {
@@ -228,7 +252,7 @@ public final class BabelSharkInstance {
             if (converter != null) {
                 return converter.serialize(this, value);
             }
-            throw new MappingException(String.format("No serializer could be found for %s",value.getClass()));
+            reportError(String.format("No serializer could be found for %s",value.getClass()));
         }
         return new ValueNode(null);
     }
@@ -236,7 +260,8 @@ public final class BabelSharkInstance {
     public void write(Output output, Object value) throws MappingException, IOException {
         ObjectWriter writer = getWriter(output.getContentType());
         if (writer == null) {
-            throw new MappingException(String.format("Unknown content type: %s", output.getContentType()));
+            reportError(String.format("Unknown content type: %s", output.getContentType()));
+            return;
         }
         SharkNode map = write(value);
         writer.write(output, map);

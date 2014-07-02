@@ -14,8 +14,11 @@ import com.vonhof.babelshark.node.ValueNode;
 public class EnumConverter implements SharkConverter<Enum> {
 
     public <U> Enum deserialize(BabelSharkInstance bs, SharkNode node, SharkType<Enum, U> type) throws MappingException {
-        if (!node.is(SharkNode.NodeType.VALUE))
-            throw new MappingException("Invalid Enum value");
+        if (!node.is(SharkNode.NodeType.VALUE)) {
+            bs.reportError("Invalid Enum value");
+            return null;
+        }
+
         ValueNode val = (ValueNode) node;
         if (val.getValue() == null)
             return null;

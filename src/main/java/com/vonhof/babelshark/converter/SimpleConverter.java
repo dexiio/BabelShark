@@ -21,8 +21,10 @@ public class SimpleConverter implements SharkConverter<Object> {
     }
 
     public <U> Object deserialize(BabelSharkInstance bs, SharkNode node, SharkType<Object,U> type) throws MappingException {
-        if (!node.is(SharkNode.NodeType.VALUE))
-            throw new MappingException(String.format("Could not convert %s to %s",node,type));
+        if (!node.is(SharkNode.NodeType.VALUE)) {
+            bs.reportError(String.format("Could not convert %s to %s",node,type));
+            return null;
+        }
         
         Class<Object> clz = type.getType();
         
@@ -106,7 +108,10 @@ public class SimpleConverter implements SharkConverter<Object> {
         }
         if (o == null)
             return null;
-        throw new MappingException(String.format("Could not convert %s to %s",o,clz.getName()));
+
+        bs.reportError(String.format("Could not convert %s to %s",o,clz.getName()));
+
+        return null;
     }
 
 }

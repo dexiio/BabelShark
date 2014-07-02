@@ -9,12 +9,15 @@ import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class CollectionConverter implements SharkConverter<Object> {
+    private static final Logger log = Logger.getLogger(CollectionConverter.class.getName());
 
     public SharkNode serialize(BabelSharkInstance bs, Object instance) throws MappingException {
         ArrayNode node = new ArrayNode();
@@ -36,7 +39,7 @@ public class CollectionConverter implements SharkConverter<Object> {
 
     public <U> Object deserialize(BabelSharkInstance bs, SharkNode node, SharkType<Object, U> type) throws MappingException {
         if (!node.is(SharkNode.NodeType.LIST)) {
-            throw new MappingException(String.format("Could not convert %s to %s", node, type));
+            bs.reportError(String.format("Could not convert %s to %s", node, type));
         }
 
         ArrayNode listNode = (ArrayNode) node;
@@ -59,7 +62,8 @@ public class CollectionConverter implements SharkConverter<Object> {
                 } else if (Collection.class.isAssignableFrom(clz)) {
                     clz = ArrayList.class;
                 } else {
-                    throw new MappingException(String.format("Unknown collection type: %s", type));
+                    bs.reportError(String.format("Unknown collection type: %s", type));
+                    return null;
                 }
             }
 

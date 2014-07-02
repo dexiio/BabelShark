@@ -24,7 +24,8 @@ public class MapConverter implements SharkConverter<Map> {
             if (node.is(SharkNode.NodeType.VALUE) && 
                     ( ((ValueNode)node).getValue() == null || "".equals(String.valueOf(((ValueNode)node).getValue())))) 
                 return null;
-            throw new MappingException(String.format("Could not convert %s to %s",node,type));
+            bs.reportError(String.format("Could not convert %s to %s",node,type));
+            return null;
         }
             
         ObjectNode objNode = (ObjectNode) node;
@@ -33,10 +34,12 @@ public class MapConverter implements SharkConverter<Map> {
             
             Class clz = type.getType();
             if (!ReflectUtils.isInstantiatable(clz)) {
-                if (Map.class.isAssignableFrom(clz) || Object.class.equals(clz))
+                if (Map.class.isAssignableFrom(clz) || Object.class.equals(clz)) {
                     clz = LinkedHashMap.class;
-                else
-                    throw new MappingException(String.format("Unknown map type: %s",type));
+                } else {
+                    bs.reportError(String.format("Unknown map type: %s",type));
+                    return null;
+                }
             }
             
             out = (Map<String, U>) clz.newInstance();
