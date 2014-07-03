@@ -40,6 +40,7 @@ public class CollectionConverter implements SharkConverter<Object> {
     public <U> Object deserialize(BabelSharkInstance bs, SharkNode node, SharkType<Object, U> type) throws MappingException {
         if (!node.is(SharkNode.NodeType.LIST)) {
             bs.reportError(String.format("Could not convert %s to %s", node, type));
+            return null;
         }
 
         ArrayNode listNode = (ArrayNode) node;
