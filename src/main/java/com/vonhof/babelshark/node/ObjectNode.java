@@ -145,4 +145,14 @@ public final class ObjectNode extends SharkNode {
     public boolean getBoolean(String field) {
         return (boolean) getValue(field, Boolean.class,false);
     }
+
+    public long getLong(String field) {
+        return (long) getValue(field, Long.class, 0L);
+    }
+
+    public void remove(String ... fields) {
+        for(String field : fields) {
+            this.fields.remove(field);
+        }
+    }
 }

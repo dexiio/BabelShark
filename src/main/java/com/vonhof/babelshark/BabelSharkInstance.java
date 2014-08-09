@@ -319,6 +319,4 @@ public final class BabelSharkInstance {
         SharkNode node = write(value);
         return read(node,type);
     }
-    
-    
 }

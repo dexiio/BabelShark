@@ -1,10 +1,8 @@
 package com.vonhof.babelshark.node;
 
 import com.vonhof.babelshark.annotation.Name;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+
+import java.util.*;
 
 /**
  *
@@ -118,6 +116,22 @@ public final class ArrayNode extends SharkNode implements Iterable<SharkNode> {
         hash = 79 * hash + (this.children != null ? this.children.hashCode() : 0);
         return hash;
     }
-    
-    
+
+
+    public static SharkNode from(List<String> values) {
+        ArrayNode node = new ArrayNode();
+        for(String val : values) {
+            node.add(val);
+        }
+        return node;
+    }
+
+    public List<String> toStringList() {
+        List<String> out = new ArrayList<String>();
+        for(SharkNode node : this) {
+            ValueNode vNode = (ValueNode<String>) node;
+            out.add(String.valueOf(vNode.getValue()));
+        }
+        return out;
+    }
 }

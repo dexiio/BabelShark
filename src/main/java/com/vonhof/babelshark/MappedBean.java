@@ -13,6 +13,7 @@ import java.util.Set;
 
 public class MappedBean<T> {
     private final Map<String,ObjectField> fields = new LinkedHashMap<String, ObjectField>();
+    private final Map<String,String> originalFields = new LinkedHashMap<String, String>();
     private final ClassInfo<T> clz;
     private final MethodInfo factoryMethod;
 
@@ -58,12 +59,17 @@ public class MappedBean<T> {
     public ObjectField addField(String name,FieldInfo field,MethodInfo getter,MethodInfo setter) {
         final ObjectField oField = new ObjectField(field, getter, setter);
         
-        this.fields.put(name,oField);
+        fields.put(name,oField);
+        originalFields.put(field.getName(), name);
         return oField;
     }
     
     public ObjectField getField(String name) {
-        return this.fields.get(name);
+        return fields.get(name);
+    }
+
+    public String getMappedFieldName(String name) {
+        return originalFields.get(name);
     }
 
     
