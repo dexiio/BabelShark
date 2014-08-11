@@ -18,7 +18,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
-public class BeanConverter implements SharkConverter<Object> {
+public class BeanConverter<T> implements SharkConverter<T> {
     
     private final BeanMapper beanMapper;
 
@@ -30,12 +30,12 @@ public class BeanConverter implements SharkConverter<Object> {
         this.beanMapper = beanMapper;
     }
 
-    public <U> Object deserialize(BabelSharkInstance bs, SharkNode node, SharkType<Object, U> type) throws MappingException {
+    public <U> T deserialize(BabelSharkInstance bs, SharkNode node, SharkType<T, U> type) throws MappingException {
         if (!node.is(SharkNode.NodeType.MAP)) {
             throw new MappingException(String.format("Could not convert %s to %s",node,type));
         }
         ObjectNode objNode = (ObjectNode) node;
-        MappedBean<Object> map = beanMapper.getMap(type.getType());
+        MappedBean<?> map = beanMapper.getMap(type.getType());
         Object out = null;
         
         //Check for type resolver
@@ -67,7 +67,7 @@ public class BeanConverter implements SharkConverter<Object> {
             Object value = bs.read(objNode.get(field),oField.getType());
             oField.set(out,value);
         }
-        return out;
+        return (T) out;
     }
 
     public SharkNode serialize(BabelSharkInstance bs, Object instance) throws MappingException {
