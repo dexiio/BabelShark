@@ -1,5 +1,10 @@
 package com.vonhof.babelshark.language;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vonhof.babelshark.Input;
 import com.vonhof.babelshark.ObjectReader;
 import com.vonhof.babelshark.ObjectWriter;
@@ -13,19 +18,13 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.commons.io.IOUtils;
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class JsonLanguage extends SharkLanguageBase {
-    private final JsonFactory jsonFactory = new JsonFactory(); 
+    private final JsonFactory jsonFactory = new JsonFactory();
     private final ObjectMapper om = new ObjectMapper(jsonFactory);
     private final Reader reader = new Reader();
     private final Writer writer = new Writer();
@@ -66,20 +65,20 @@ public class JsonLanguage extends SharkLanguageBase {
                 return new ValueNode<Object>(null);
             
             if (node.isBigDecimal())
-                return new ValueNode(node.getDecimalValue());
+                return new ValueNode(node.decimalValue());
             if (node.isBigInteger())
-                return new ValueNode(node.getBigIntegerValue());
+                return new ValueNode(node.bigIntegerValue());
             if (node.isBoolean())
-                return new ValueNode(node.getBooleanValue());
+                return new ValueNode(node.booleanValue());
             if (node.isDouble())
-                return new ValueNode(node.getDoubleValue());
+                return new ValueNode(node.doubleValue());
             if (node.isInt())
-                return new ValueNode(node.getIntValue());
+                return new ValueNode(node.intValue());
             if (node.isLong())
-                return new ValueNode(node.getLongValue());
+                return new ValueNode(node.longValue());
             
             if (node.isTextual())
-                return new ValueNode(node.getTextValue());
+                return new ValueNode(node.textValue());
             
             if (node.isArray()) {
                 ArrayNode out = new ArrayNode();
@@ -91,7 +90,7 @@ public class JsonLanguage extends SharkLanguageBase {
             
             if (node.isObject()) {
                 ObjectNode out = new ObjectNode();
-                Iterator<String> fields = node.getFieldNames();
+                Iterator<String> fields = node.fieldNames();
                 while(fields.hasNext()) {
                     String name = fields.next();
                     JsonNode entry = node.get(name);
@@ -111,7 +110,7 @@ public class JsonLanguage extends SharkLanguageBase {
         }
 
         public void write(Output output, SharkNode node) throws IOException {
-            JsonGenerator g = jsonFactory.createJsonGenerator(output.getStream(),JsonEncoding.UTF8);
+            JsonGenerator g = jsonFactory.createJsonGenerator(output.getStream(), JsonEncoding.UTF8);
             writeNode(g, node);
             g.close();
         }
