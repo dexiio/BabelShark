@@ -30,11 +30,19 @@ public final class ObjectNode extends SharkNode {
     }
     
     public ObjectNode putObject(String fieldName) {
+        ObjectNode out = this.getObject(fieldName);
+        if (out != null) {
+            return out;
+        }
         return put(fieldName,new ObjectNode());
     }
     
     public ArrayNode putArray(String fieldName) {
         return put(fieldName,new ArrayNode());
+    }
+
+    public ValueNode putValue(String fieldName, Object value) {
+        return put(fieldName, new ValueNode(value));
     }
 
     public ValueNode put(String fieldName, String value) {
