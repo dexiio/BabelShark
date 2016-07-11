@@ -64,8 +64,12 @@ public class BeanConverter<T> implements SharkConverter<T> {
         for(String field:objNode.getFields()) {
             final MappedBean.ObjectField oField = map.getField(field);
             if (oField == null || !oField.hasSetter()) continue;
-            Object value = bs.read(objNode.get(field),oField.getType());
-            oField.set(out,value);
+            try {
+                Object value = bs.read(objNode.get(field), oField.getType());
+                oField.set(out, value);
+            } catch (Exception ex) {
+                throw new BabelSharkDeserializeException(String.format("Failed to read value for field: %s", field), ex);
+            }
         }
         return (T) out;
     }
@@ -78,7 +82,11 @@ public class BeanConverter<T> implements SharkConverter<T> {
             MappedBean.ObjectField oField = map.getField(field);
             if (!oField.hasGetter()) continue;
             Object value = oField.get(instance);
-            out.put(field,bs.write(value));
+            try {
+                out.put(field,bs.write(value));
+            } catch (Exception ex) {
+                throw new BabelSharkSerializeException(String.format("Failed to write value for field: %s => %s", field, value), ex);
+            }
         }
         return out;
     }
