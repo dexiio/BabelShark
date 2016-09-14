@@ -1,11 +1,13 @@
 package com.vonhof.babelshark.node;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
 
-abstract public class SharkNode {
+abstract public class SharkNode implements Serializable {
     private final NodeType type;
     private boolean attribute;
 
