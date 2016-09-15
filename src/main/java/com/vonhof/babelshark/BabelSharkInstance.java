@@ -8,14 +8,14 @@ import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
 import com.vonhof.babelshark.node.ValueNode;
 import com.vonhof.babelshark.reflect.ClassInfo;
+import org.apache.log4j.Logger;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Singleton instance of the babelshark engine
@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public final class BabelSharkInstance {
-    private static final Logger log = Logger.getLogger(BabelSharkInstance.class.getName());
+    private final static Logger log = Logger.getLogger(BabelSharkInstance.class);
 
     private final Map<String, SharkLanguage> languages = new HashMap<String, SharkLanguage>();
     private final Map<String, ObjectReader> readers = new HashMap<String, ObjectReader>();
@@ -54,7 +54,7 @@ public final class BabelSharkInstance {
         if (doThrowOnInvalidMapping()) {
             throw new MappingException(error);
         } else {
-            log.log(Level.WARNING, error, new MappingException(error));
+            log.warn(error, new MappingException(error));
         }
     }
 

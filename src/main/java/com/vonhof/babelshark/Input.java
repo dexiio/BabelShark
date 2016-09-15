@@ -1,16 +1,18 @@
 package com.vonhof.babelshark;
 
+import org.apache.log4j.Logger;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * Class that wraps inputstream with contentType
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class Input {
+    private final static Logger log = Logger.getLogger(Input.class);
     private final InputStream input;
     private final String contentType;
     
@@ -19,7 +21,7 @@ public class Input {
         try {
             is = new ByteArrayInputStream(input.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(Input.class.getName()).log(Level.SEVERE, null, ex);
+            log.error("Failed to ready input", ex);
             is = new ByteArrayInputStream(input.getBytes());
         }
         this.input = is;

@@ -1,18 +1,19 @@
 package com.vonhof.babelshark.reflect;
 
 import com.vonhof.babelshark.ReflectUtils;
+import org.apache.log4j.Logger;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public final class ClassInfo<T> {
+    private final static Logger log = Logger.getLogger(ClassInfo.class);
 
     private final static Map<Integer, ClassInfo> cache = new HashMap<Integer, ClassInfo>();
 
@@ -115,7 +116,7 @@ public final class ClassInfo<T> {
             readMethods();
             readAnnotations();
         } catch (Throwable ex) {
-            Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Could not read class: %s", type), ex);
+            log.warn(String.format("Could not read class: %s", type), ex);
         } finally {
             ready = true;
         }

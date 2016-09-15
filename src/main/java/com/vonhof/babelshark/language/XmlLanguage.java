@@ -8,8 +8,6 @@ import com.vonhof.babelshark.node.ValueNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,6 +16,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
+import org.apache.log4j.Logger;
 import org.w3c.dom.*;
 import sun.misc.IOUtils;
 
@@ -26,6 +26,8 @@ import sun.misc.IOUtils;
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class XmlLanguage extends SharkLanguageBase {
+    private final static Logger log = Logger.getLogger(XmlLanguage.class);
+
     private final static String LIST_ENTRY_NAME = "entry";
     private final static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     
@@ -200,9 +202,9 @@ public class XmlLanguage extends SharkLanguageBase {
                 transformer.transform(source, new StreamResult(output.getStream()));
                 
             } catch (TransformerException ex) {
-                Logger.getLogger(XmlLanguage.class.getName()).log(Level.SEVERE, null, ex);
+                log.error("Failed to parse XML", ex);
             } catch (ParserConfigurationException ex) {
-                Logger.getLogger(XmlLanguage.class.getName()).log(Level.SEVERE, null, ex);
+                log.error("Failed to parse XML", ex);
             }
         }
         private Node writeNode(Node parent,Document doc,SharkNode node) throws IOException {

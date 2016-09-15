@@ -2,19 +2,19 @@ package com.vonhof.babelshark.reflect;
 
 import com.thoughtworks.paranamer.AdaptiveParanamer;
 import com.thoughtworks.paranamer.Paranamer;
-import com.vonhof.babelshark.ReflectUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class MethodInfo {
-    private static final Paranamer paranamer = new AdaptiveParanamer();;
+
+    private static final Paranamer paranamer = new AdaptiveParanamer();
     
     private final ClassInfo owner;
     private final Method method;

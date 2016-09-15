@@ -7,17 +7,18 @@ import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.node.ArrayNode;
 import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
+import org.apache.log4j.Logger;
+
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class CollectionConverter implements SharkConverter<Object> {
-    private static final Logger log = Logger.getLogger(CollectionConverter.class.getName());
+
 
     public SharkNode serialize(BabelSharkInstance bs, Object instance) throws MappingException {
         ArrayNode node = new ArrayNode();
