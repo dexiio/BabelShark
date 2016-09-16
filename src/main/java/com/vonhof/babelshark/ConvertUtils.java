@@ -105,12 +105,13 @@ public class ConvertUtils {
                 dateStr.trim().isEmpty()) {
             return null;
         }
+
         try {
             return DateFormat.getDateTimeInstance().parse(dateStr);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             try {
                 return new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy").parse(dateStr);
-            } catch (ParseException e1) {
+            } catch (Exception e1) {
                 throw new RuntimeException(String.format("Could not read date string: %s", dateStr), e1);
             }
         }
