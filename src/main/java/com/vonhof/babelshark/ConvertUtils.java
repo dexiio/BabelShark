@@ -12,7 +12,6 @@ import java.util.*;
 
 public class ConvertUtils {
 
-    private static final DateFormat java8Format = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy");
     /**
      * Converts string to primitives (boolean,enum,class etc.) 
      * @param <T>
@@ -106,7 +105,7 @@ public class ConvertUtils {
             return DateFormat.getDateTimeInstance().parse(dateStr);
         } catch (ParseException e) {
             try {
-                return java8Format.parse(dateStr);
+                return new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy").parse(dateStr);
             } catch (ParseException e1) {
                 throw new RuntimeException(String.format("Could not read date string: %s", dateStr), e1);
             }
