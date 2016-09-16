@@ -101,6 +101,10 @@ public class ConvertUtils {
     }
 
     public static Date parseDate(String dateStr) {
+        if (dateStr == null ||
+                dateStr.trim().isEmpty()) {
+            return null;
+        }
         try {
             return DateFormat.getDateTimeInstance().parse(dateStr);
         } catch (ParseException e) {

@@ -20,5 +20,8 @@ public class ConvertUtilsTest {
         Date date3 = ConvertUtils.parseDate("Sep 16, 2016 1:48:41 PM");
         assertNotNull(date3);
 
+        assertNull(ConvertUtils.parseDate(null));
+
+        assertNull(ConvertUtils.parseDate(""));
     }
 }
