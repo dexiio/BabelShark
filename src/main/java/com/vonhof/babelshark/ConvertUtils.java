@@ -7,9 +7,12 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ConvertUtils {
+
+    private static final DateFormat java8Format = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy");
     /**
      * Converts string to primitives (boolean,enum,class etc.) 
      * @param <T>
@@ -67,22 +70,15 @@ public class ConvertUtils {
             if (isNumberString(str)) {
                 return (T) new Date(Long.valueOf(str));
             }
-            try {
-                return (T) DateFormat.getDateTimeInstance().parse(str);
-            } catch (ParseException ex) {
-                throw new RuntimeException(String.format("Could not read date string: %s",str), ex);
-            }
+
+            return (T) parseDate(str);
         }
         
         if (Calendar.class.isAssignableFrom(type)) {
-            try {
-                Date date = DateFormat.getDateTimeInstance().parse(str);
-                GregorianCalendar calendar = new GregorianCalendar();
-                calendar.setTime(date);
-                return (T) calendar;
-            } catch (ParseException ex) {
-                throw new RuntimeException(String.format("Could not read date string: %s",str), ex);
-            }
+            Date date = parseDate(str);
+            GregorianCalendar calendar = new GregorianCalendar();
+            calendar.setTime(date);
+            return (T) calendar;
         }
         
         if (Timestamp.class.equals(type)) {
@@ -104,6 +100,19 @@ public class ConvertUtils {
         
         throw new RuntimeException(String.format("Did not recognize type: %s",type.getName()));
     }
+
+    public static Date parseDate(String dateStr) {
+        try {
+            return DateFormat.getDateTimeInstance().parse(dateStr);
+        } catch (ParseException e) {
+            try {
+                return java8Format.parse(dateStr);
+            } catch (ParseException e1) {
+                throw new RuntimeException(String.format("Could not read date string: %s", dateStr), e1);
+            }
+        }
+    }
+
     public static <T> T convert(Number number,Class<T> type) {
         if (Integer.class.equals(type) || int.class.equals(type))
             return (T) new Integer(number.intValue());
