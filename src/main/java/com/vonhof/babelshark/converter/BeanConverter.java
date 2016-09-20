@@ -51,7 +51,7 @@ public class BeanConverter<T> implements SharkConverter<T> {
                     throw new Exception("Type resolver method has to be static");
                 }
                 Class<?> resolvedClz = (Class) resolverMethod.invoke(null, typeValue);
-                map = (MappedBean<Object>) beanMapper.getMap(resolvedClz);
+                map = beanMapper.getMap(resolvedClz);
                 out = resolvedClz.newInstance();
             } catch (Throwable ex) {
                 throw new MappingException(ex);

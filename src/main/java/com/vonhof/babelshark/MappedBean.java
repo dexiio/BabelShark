@@ -147,11 +147,19 @@ public class MappedBean<T> {
 
         
         public boolean hasGetter() {
+            if (field.isStatic()) {
+                return false;
+            }
+
             return getter != null 
                     || field.isPublic();
         }
         
         public boolean hasSetter() {
+            if (field.isStatic()) {
+                return false;
+            }
+
             return setter != null 
                     || field.isPublic();
         }
