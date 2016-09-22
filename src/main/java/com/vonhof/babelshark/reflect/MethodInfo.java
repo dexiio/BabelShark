@@ -123,6 +123,10 @@ public class MethodInfo {
         Type[] genParmTypes = method.getGenericParameterTypes();
         
         for(int i = 0;i < parmNames.length;i++) {
+            if (genParmTypes.length <= i) {
+                break;
+            }
+
             Class type = parmTypes[i];
             
             Type genParmType = genParmTypes[i];
