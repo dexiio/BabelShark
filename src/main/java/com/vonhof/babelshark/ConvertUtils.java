@@ -17,7 +17,7 @@ public class ConvertUtils {
      * @param <T>
      * @param str
      * @param type
-     * @return 
+     * @return
      */
     public static <T> T convert(String str,Class<T> type) {
         if (str == null)
@@ -32,6 +32,11 @@ public class ConvertUtils {
         if (int.class.equals(type) || Integer.class.equals(type)) {
             if (str.isEmpty())
                 str = "0";
+
+            if ("NaN".equalsIgnoreCase(str)) {
+                str = "0";
+            }
+
             return (T) Integer.valueOf(str);
         }
 

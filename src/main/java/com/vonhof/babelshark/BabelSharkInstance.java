@@ -270,7 +270,13 @@ public final class BabelSharkInstance {
     private String normalizeContentType(String contentType) {
         if (contentType == null)
             return getDefaultType();
-        return contentType.toLowerCase().trim();
+        contentType = contentType.toLowerCase().trim();
+        int ix = contentType.indexOf(";");
+        if (ix > -1) {
+            return contentType.substring(0, ix);
+        }
+
+        return contentType;
     }
 
     public String writeToString(Object value, String contentType) throws MappingException, IOException {
