@@ -109,7 +109,20 @@ public final class ClassInfo<T> {
         }
     }
 
+    private boolean isScalaType() {
+        for(Annotation annotation : type.getAnnotations()){
+            if (annotation.annotationType().getCanonicalName().equals("scala.reflect.ScalaSignature")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void read() {
+        if (isScalaType()) {
+            return;
+        }
+
         try {
             readTypeVariables();
             readFields();
