@@ -79,6 +79,23 @@ public final class ClassInfo<T> {
         hash = 71 * hash + Arrays.deepHashCode(genericTypes);
         return hash;
     }
+
+    public static boolean isAssignableFrom(Class assignFrom, Class assignTo) {
+        return assignFrom.equals(assignTo) || (assignTo.isAssignableFrom(assignFrom) && !assignFrom.equals(Object.class));
+    }
+
+    public static boolean inherits(Class type, Class superClass) {
+        return type.equals(superClass) || (type.isAssignableFrom(superClass) && !type.equals(Object.class));
+    }
+
+    public static boolean isBoolean(Class type) {
+        return inherits(type, Boolean.class) || inherits(type, Boolean.TYPE);
+    }
+
+    public static boolean isString(Class type) {
+        return String.class.equals(type);
+    }
+
     private final Class<T> type;
     private final Type[] genericTypes;
     private final Map<String, FieldInfo> fields = new LinkedHashMap<String, FieldInfo>();
@@ -378,12 +395,16 @@ public final class ClassInfo<T> {
         return Collections.unmodifiableList(methods);
     }
 
-    public MethodInfo getMethodByClassParms(String name, Class... args) {
-        ClassInfo[] infoArgs = fromAll(args);
-        return getMethod(name, infoArgs);
+    public MethodInfo getMethod(String name, ClassInfo... args) {
+        for (MethodInfo m : methods) {
+            if (m.getName().equalsIgnoreCase(name) && m.hasParmTypes(args)) {
+                return m;
+            }
+        }
+        return null;
     }
 
-    public MethodInfo getMethod(String name, ClassInfo... args) {
+    public MethodInfo getMethodByClassParms(String name, Class... args) {
         for (MethodInfo m : methods) {
             if (m.getName().equalsIgnoreCase(name) && m.hasParmTypes(args)) {
                 return m;

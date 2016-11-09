@@ -18,7 +18,8 @@ public class MethodInfo {
     
     private final ClassInfo owner;
     private final Method method;
-    private final ClassInfo returnType;
+    private ClassInfo returnClassInfo;
+    private Class returnType;
     private final Map<Class<? extends Annotation>,Annotation> annotations = new HashMap<Class<? extends Annotation>, Annotation>();
     private final Map<String,Parameter> parameters = new LinkedHashMap<String, Parameter>();
     private final List<Method> inheritance = new LinkedList<Method>();
@@ -27,22 +28,17 @@ public class MethodInfo {
         this.owner = owner;
         this.method = method;
         
-        Class tmpReturnType = method.getReturnType();
+        returnType = method.getReturnType();
         Type genType = method.getGenericReturnType();
         
         if (genType instanceof TypeVariable) {
             Type typeVariableType = ClassInfo.resolveGenericType(genType, owner);
             if (typeVariableType instanceof Class) {
-                tmpReturnType = (Class) typeVariableType;
+                returnType = (Class) typeVariableType;
             }            
         }
-        
-        if (genType instanceof ParameterizedType) {
-            returnType = ClassInfo.from(tmpReturnType,ClassInfo.readGenericTypes(genType, owner));
-        } else {
-            returnType = ClassInfo.from(tmpReturnType,genType);
-        }
-        
+
+
         readInheritance();
         
         readParameters();
@@ -136,13 +132,6 @@ public class MethodInfo {
                     type = (Class)genParmType;
                 }
             }
-            ClassInfo classInfo;
-            if (genParmType instanceof ParameterizedType) {
-                classInfo = ClassInfo.from(type,ClassInfo.readGenericTypes(genParmType, owner));
-            } else {
-                classInfo = ClassInfo.from(type,genParmType);
-            }
-            
             Annotation[] annos = new Annotation[0];
 
             for(Method m:inheritance) {
@@ -150,7 +139,7 @@ public class MethodInfo {
                 if (annos.length > 0) break;
             }
             
-            Parameter parm = new Parameter(parmNames[i],classInfo, annos);
+            Parameter parm = new Parameter(owner, parmNames[i], type, genParmType, annos);
             parameters.put(parm.getName(), parm);
         }
     }
@@ -177,8 +166,24 @@ public class MethodInfo {
         return method.getName();
     }
 
-    public ClassInfo getReturnType() {
+    public Class getReturnType() {
         return returnType;
+    }
+
+    public ClassInfo getReturnClassInfo() {
+        if (returnClassInfo != null) {
+            return returnClassInfo;
+        }
+
+        Type genType = method.getGenericReturnType();
+        if (genType instanceof ParameterizedType) {
+            returnClassInfo = ClassInfo.from(returnType,ClassInfo.readGenericTypes(genType, owner));
+        } else {
+            returnClassInfo = ClassInfo.from(returnType,genType);
+        }
+
+
+        return returnClassInfo;
     }
     
     public Object invoke(Object instance,Object ... args) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -192,7 +197,22 @@ public class MethodInfo {
         
         for(int i = 0; i < args.length;i++) {
             Parameter p = parms.get(i);
-            if (!p.getType().isAssignableFrom(args[i])) {
+            if (!ClassInfo.isAssignableFrom(args[i].getType(), p.getType())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean hasParmTypes(Class[] args) {
+        if (parameters.size() != args.length)
+            return false;
+
+        ArrayList<Parameter> parms = new ArrayList<Parameter>(parameters.values());
+
+        for(int i = 0; i < args.length;i++) {
+            Parameter p = parms.get(i);
+            if (!ClassInfo.isAssignableFrom(args[i], p.getType())) {
                 return false;
             }
         }
@@ -260,21 +280,25 @@ public class MethodInfo {
         sb.append(")");
         return sb.toString();
     }
-    
-    
-    
+
     public static class Parameter {
         private final String name;
-        private final ClassInfo type;
+        private ClassInfo owner;
+        private ClassInfo classInfo;
+        private Class type;
+        private Type genParmType;
+
         private final Map<Class<? extends Annotation>,Annotation> annotations = new HashMap<Class<? extends Annotation>, Annotation>();
 
-        private Parameter(String name, ClassInfo type,Annotation[] annotations) {
-            this.name = name;
+        public Parameter(ClassInfo owner, String parmName, Class type, Type genParmType, Annotation[] annos) {
+            this.owner = owner;
+            this.name = parmName;
             this.type = type;
-            
-            readAnnotations(annotations);
+            this.genParmType = genParmType;
+
+            readAnnotations(annos);
         }
-        
+
         private void readAnnotations(Annotation[] annotations) {
             for(Annotation a:annotations) {
                 this.annotations.put(a.annotationType(), a);
@@ -285,8 +309,22 @@ public class MethodInfo {
             return name;
         }
 
-        public ClassInfo getType() {
+        public Class getType() {
             return type;
+        }
+
+        public ClassInfo getClassInfo() {
+            if (classInfo != null) {
+                return classInfo;
+            }
+
+            if (genParmType instanceof ParameterizedType) {
+                classInfo = ClassInfo.from(type,ClassInfo.readGenericTypes(genParmType, owner));
+            } else {
+                classInfo = ClassInfo.from(type,genParmType);
+            }
+
+            return classInfo;
         }
         public boolean hasAnnotation(Class<? extends Annotation> aType) {
             return annotations.containsKey(aType);

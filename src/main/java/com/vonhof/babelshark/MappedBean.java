@@ -39,7 +39,7 @@ public class MappedBean<T> {
                 throw new MappingException(String.format("Provided factory method must be public static for class: %s",clz));
             
             if (factoryMethod.getParameters().size() != 1 
-                    || factoryMethod.getParameter(0).getType().isA(ObjectNode.class))
+                    || ClassInfo.inherits(factoryMethod.getParameter(0).getType(), ObjectNode.class))
                 throw new MappingException(String.format("Provided factory method must have exactly one argument of type ObjectNode for class: %s",clz));
         } 
         return out;
@@ -121,18 +121,18 @@ public class MappedBean<T> {
             this.getter = getter;
             this.setter = setter;
             
-            if (field.getType().isMapOrCollection()) {
+            if (field.isMapOrCollection()) {
                 //Attempt to get the list or map value types
                 if (getter != null) {
-                    type = SharkType.get(getter.getReturnType());
+                    type = SharkType.get(getter.getReturnClassInfo());
                     return;
                 }
                 if (setter != null) {
-                    type = SharkType.get(setter.getParameter(0).getType());
+                    type = SharkType.get(setter.getParameter(0).getClassInfo());
                     return;
                 }
                 if (field.isPublic()) {
-                    type = SharkType.get(field.getType());
+                    type = SharkType.get(field.getClassInfo());
                     return;
                 }
             }

@@ -3,14 +3,13 @@ package com.vonhof.babelshark.reflect;
 import com.vonhof.babelshark.annotation.Name;
 import com.vonhof.babelshark.node.SharkType;
 import com.vonhof.babelshark.reflect.MethodInfo.Parameter;
-import java.lang.reflect.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import junit.framework.TestCase;
 
 /**
@@ -36,7 +35,7 @@ public class ClassInfoTest extends TestCase {
         FieldInfo field = crazyBeanInfo.getField("someList");
         assertNotNull("Can find field", field);
 
-        assertEquals("Can find generic type", String.class, field.getType().getGenericTypes()[0]);
+        assertEquals("Can find generic type", String.class, field.getClassInfo().getGenericTypes()[0]);
     }
 
     public void test_can_read_generic_map() throws Exception {
@@ -44,9 +43,9 @@ public class ClassInfoTest extends TestCase {
         FieldInfo field = crazyBeanInfo.getField("someMap");
         assertNotNull("Can find field", field);
 
-        assertEquals("Can find generic map key", String.class, field.getType().getGenericTypes()[0]);
+        assertEquals("Can find generic map key", String.class, field.getClassInfo().getGenericTypes()[0]);
 
-        assertEquals("Can find generic map value", Integer.class, field.getType().getGenericTypes()[1]);
+        assertEquals("Can find generic map value", Integer.class, field.getClassInfo().getGenericTypes()[1]);
     }
 
     public void test_can_read_generic_parm() throws Exception {
@@ -54,7 +53,7 @@ public class ClassInfoTest extends TestCase {
         assertNotNull("Can find method", method);
         assertEquals("Can find parm", 1, method.getParameters().size());
         Parameter p = method.getParameter(0);
-        assertEquals("Can find parm generic type", String.class, p.getType().getGenericTypes()[0]);
+        assertEquals("Can find parm generic type", String.class, p.getClassInfo().getGenericTypes()[0]);
     }
 
     public void test_can_read_parm_names() throws Exception {
@@ -68,46 +67,46 @@ public class ClassInfoTest extends TestCase {
     public void test_can_read_generic_return_type() throws Exception {
         MethodInfo method = crazyBeanInfo.getMethodByClassParms("getSomeList");
         assertNotNull("Can find method", method);
-        assertEquals("Can find generic return type", List.class, method.getReturnType().getType());
-        assertEquals("Can find generic return type class", String.class, method.getReturnType().getGenericTypes()[0]);
+        assertEquals("Can find generic return type", List.class, method.getReturnClassInfo().getType());
+        assertEquals("Can find generic return type class", String.class, method.getReturnClassInfo().getGenericTypes()[0]);
     }
 
     public void test_can_read_array_return_type() throws Exception {
         MethodInfo method = crazyBeanInfo.getMethodByClassParms("getStringArray");
         assertNotNull("Can find method", method);
-        assertTrue("Can find array return type", method.getReturnType().isArray());
-        assertEquals("Can find array return type class", String.class, method.getReturnType().getComponentType());
+        assertTrue("Can find array return type", method.getReturnClassInfo().isArray());
+        assertEquals("Can find array return type class", String.class, method.getReturnClassInfo().getComponentType());
     }
 
     public void test_can_read_generic_field_type() throws Exception {
         FieldInfo field = genericBeanInfo.getField("genField");
         assertNotNull("Can find field", field);
-        assertEquals("Can determine type of generic field", ExtendedCrazyBean.class, field.getType().getType());
+        assertEquals("Can determine type of generic field", ExtendedCrazyBean.class, field.getClassInfo().getType());
     }
     
     public void test_can_read_generic_parameterized_field_type() throws Exception {
         FieldInfo field = genericBeanInfo.getField("genMap");
         assertNotNull("Can find field", field);
-        assertEquals("Can determine type of generic field", ExtendedCrazyBean.class, field.getType().getGenericTypes()[1]);
+        assertEquals("Can determine type of generic field", ExtendedCrazyBean.class, field.getClassInfo().getGenericTypes()[1]);
     }
 
     public void test_can_read_generic_method() throws Exception {
         MethodInfo method = genericBeanInfo.getMethodByClassParms("doSomething", ExtendedCrazyBean.class);
         assertNotNull("Can find method", method);
-        assertEquals("Can determine type of generic parm", ExtendedCrazyBean.class, method.getParameter("val").getType().getType());
-        assertEquals("Can determine type of generic return type", ExtendedCrazyBean.class, method.getReturnType().getType());
+        assertEquals("Can determine type of generic parm", ExtendedCrazyBean.class, method.getParameter("val").getClassInfo().getType());
+        assertEquals("Can determine type of generic return type", ExtendedCrazyBean.class, method.getReturnClassInfo().getType());
     }
     
     public void test_can_read_generic_paremeterized_method() throws Exception {
         MethodInfo method = genericBeanInfo.getMethodByClassParms("doSomething", Map.class);
         assertNotNull("Can find method", method);
-        assertEquals("Can determine type of generic parm", Map.class, method.getParameter("val").getType().getType());
-        assertEquals("Can determine type of generic return type", Map.class, method.getReturnType().getType());
+        assertEquals("Can determine type of generic parm", Map.class, method.getParameter("val").getClassInfo().getType());
+        assertEquals("Can determine type of generic return type", Map.class, method.getReturnClassInfo().getType());
         
         assertEquals("Can determine type of generic parameter in return type", ExtendedCrazyBean.class, 
-                        method.getReturnType().getGenericTypes()[1]);
+                        method.getReturnClassInfo().getGenericTypes()[1]);
         assertEquals("Can determine type of generic parameter in parm type", ExtendedCrazyBean.class, 
-                        method.getParameter("val").getType().getGenericTypes()[1]);
+                        method.getParameter("val").getClassInfo().getGenericTypes()[1]);
         
     }
     

@@ -135,7 +135,7 @@ public final class SharkType<T,U> {
     }
     
     public static SharkType get(FieldInfo field) {
-        return get(field.getType());
+        return get(field.getClassInfo());
     }
     
     

@@ -1,7 +1,7 @@
 package com.vonhof.babelshark.reflect;
 
-import com.sun.org.apache.xerces.internal.impl.dv.xs.TypeValidator;
 import com.vonhof.babelshark.ReflectUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.HashMap;
@@ -14,31 +14,16 @@ import java.util.Map;
 public class FieldInfo {
     private final ClassInfo owner;
     private final Field field;
-    private ClassInfo type;
+    private ClassInfo classInfo;
+    private Class type;
     private final Map<Class<? extends Annotation>,Annotation> annotations = new HashMap<Class<? extends Annotation>, Annotation>();
 
     public FieldInfo(ClassInfo owner,Field field) {
         this.owner = owner;
         this.field = field;
-        
-        Class fieldType = this.field.getType();
-        Type genType = this.field.getGenericType();
-        if (genType instanceof ParameterizedType) {
-            Type[] genTypes = ClassInfo.readGenericTypes(genType,owner);
-            this.type = ClassInfo.from(fieldType,genTypes);
-        } else {
-            if (genType instanceof TypeVariable) {
-                Type genTypeResolved = ClassInfo.resolveGenericType(genType, owner);
-                if (genTypeResolved instanceof Class)
-                    fieldType = (Class) genTypeResolved;
-            } else
-                this.type = ClassInfo.from(fieldType,ClassInfo.resolveGenericType(genType, owner));
-        }
-        
-        if (type == null)
-            this.type = ClassInfo.from(fieldType,genType);
-        
-        
+
+        type = this.field.getType();
+
         readAnnotations();
     }
     
@@ -63,7 +48,32 @@ public class FieldInfo {
         return field;
     }
 
-    public ClassInfo getType() {
+    public ClassInfo getClassInfo() {
+        if (classInfo != null) {
+            return classInfo;
+        }
+
+        Type genType = this.field.getGenericType();
+        if (genType instanceof ParameterizedType) {
+            Type[] genTypes = ClassInfo.readGenericTypes(genType,owner);
+            this.classInfo = ClassInfo.from(type,genTypes);
+        } else {
+            if (genType instanceof TypeVariable) {
+                Type genTypeResolved = ClassInfo.resolveGenericType(genType, owner);
+                if (genTypeResolved instanceof Class)
+                    type = (Class) genTypeResolved;
+            } else
+                this.classInfo = ClassInfo.from(type,ClassInfo.resolveGenericType(genType, owner));
+        }
+
+        if (classInfo == null) {
+            this.classInfo = ClassInfo.from(type, genType);
+        }
+
+        return classInfo;
+    }
+
+    public Class getType() {
         return type;
     }
 
@@ -114,6 +124,8 @@ public class FieldInfo {
     public void forceAccessible() {
         field.setAccessible(true);
     }
-    
-   
+
+    public boolean isMapOrCollection() {
+        return ReflectUtils.isMapOrCollection(type);
+    }
 }
