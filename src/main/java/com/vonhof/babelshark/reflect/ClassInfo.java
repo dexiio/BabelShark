@@ -85,7 +85,7 @@ public final class ClassInfo<T> {
     }
 
     public static boolean inherits(Class type, Class superClass) {
-        return type.equals(superClass) || (type.isAssignableFrom(superClass) && !type.equals(Object.class));
+        return type.equals(superClass) || (superClass.isAssignableFrom(type) && !superClass.equals(Object.class));
     }
 
     public static boolean isBoolean(Class type) {
