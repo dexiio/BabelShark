@@ -1,7 +1,6 @@
 package com.vonhof.babelshark;
 
 import com.vonhof.babelshark.node.SharkType;
-import java.awt.image.ImageObserver;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +11,7 @@ import java.util.Map;
  */
 public class TypeRegistry<T> {
     
-    private Map<SharkType,T> registry = new HashMap<SharkType, T>();
+    private Map<SharkType,T> registry = new HashMap<>();
     
     public void put(SharkType type,T value) {
         registry.put(type, value);
