@@ -531,4 +531,60 @@ public final class ClassInfo<T> {
         }
         return out;
     }
+
+    public Type getMapKeyType() {
+        if (!isMap()) {
+            return Object.class;
+        }
+
+        if (getGenericTypes().length == 2) {
+            return getGenericTypes()[0];
+        }
+
+        Type[] types = this.getMethod("keySet").getReturnClassInfo().getGenericTypes();
+        if (types != null && types.length > 0) {
+            return types[0];
+        }
+
+        return Object.class;
+    }
+
+    public Type getMapValueType() {
+        if (!isMap()) {
+            return Object.class;
+        }
+
+        if (getGenericTypes().length == 2) {
+            return getGenericTypes()[1];
+        }
+
+        Type[] types = this.getMethod("values").getReturnClassInfo().getGenericTypes();
+        if (types != null && types.length > 0) {
+            return types[0];
+        }
+
+        return Object.class;
+
+    }
+
+    public Type getCollectionType() {
+        if (!isCollection()) {
+            return Object.class;
+        }
+
+        if (isArray()) {
+            return getComponentType();
+        }
+
+        if (getGenericTypes().length == 1) {
+            return getGenericTypes()[0];
+        }
+
+        Type[] types = this.getMethod("iterator").getReturnClassInfo().getGenericTypes();
+        if (types != null && types.length > 0) {
+            return types[0];
+        }
+
+        return Object.class;
+    }
 }

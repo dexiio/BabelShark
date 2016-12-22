@@ -35,7 +35,27 @@ public class ClassInfoTest extends TestCase {
         FieldInfo field = crazyBeanInfo.getField("someList");
         assertNotNull("Can find field", field);
 
-        assertEquals("Can find generic type", String.class, field.getClassInfo().getGenericTypes()[0]);
+        assertEquals("Can find generic type", String.class, field.getClassInfo().getCollectionType());
+    }
+
+    public void test_can_read_array_list() throws Exception {
+        SimpleBean[] test = new SimpleBean[0];
+
+        ClassInfo classInfo = ClassInfo.from(test.getClass());
+        assertTrue(classInfo.isArray());
+        assertTrue(classInfo.isCollection());
+
+        assertEquals("Can find generic type", SimpleBean.class, classInfo.getCollectionType());
+    }
+
+    public void test_can_read_extended_list() throws Exception {
+        SimpleBeanList test = new SimpleBeanList();
+
+        ClassInfo classInfo = ClassInfo.from(test.getClass());
+        assertFalse(classInfo.isArray());
+        assertTrue(classInfo.isCollection());
+
+        assertEquals("Can find generic type", SimpleBean.class, classInfo.getCollectionType());
     }
 
     public void test_can_read_generic_map() throws Exception {
@@ -43,9 +63,19 @@ public class ClassInfoTest extends TestCase {
         FieldInfo field = crazyBeanInfo.getField("someMap");
         assertNotNull("Can find field", field);
 
-        assertEquals("Can find generic map key", String.class, field.getClassInfo().getGenericTypes()[0]);
+        assertEquals("Can find generic map key", String.class, field.getClassInfo().getMapKeyType());
 
-        assertEquals("Can find generic map value", Integer.class, field.getClassInfo().getGenericTypes()[1]);
+        assertEquals("Can find generic map value", Integer.class, field.getClassInfo().getMapValueType());
+    }
+
+    public void test_can_read_extended_map() {
+        ClassInfo<SimpleBeanMap> classInfo = ClassInfo.from(SimpleBeanMap.class);
+
+        assertTrue(classInfo.isMap());
+
+        assertEquals("Can find generic map key", String.class, classInfo.getMapKeyType());
+
+        assertEquals("Can find generic map value", SimpleBean.class, classInfo.getMapValueType());
     }
 
     public void test_can_read_generic_parm() throws Exception {
@@ -265,6 +295,14 @@ public class ClassInfoTest extends TestCase {
         public void setProperty(String property) {
             this.property = property;
         }
+    }
+
+    public static class SimpleBeanMap extends HashMap<String, SimpleBean> {
+
+    }
+
+    public static class SimpleBeanList extends ArrayList<SimpleBean> {
+
     }
 
 }

@@ -155,17 +155,14 @@ public final class SharkType<T,U> {
     
     public static <T> SharkType<T,?> get(ClassInfo<T> info) {
         SharkType valueType = new SharkType(Object.class, false,false,null);
-        if (info.isMap() && info.getGenericTypes().length > 1) {
-            valueType = type2Class(info.getGenericTypes()[1]);
-            
+        if (info.isMap()) {
+            valueType = type2Class(info.getMapValueType());
         }
-        if (info.isCollection() && info.getGenericTypes().length > 0) {
-            valueType = type2Class(info.getGenericTypes()[0]);
+
+        if (info.isCollection()) {
+            valueType = type2Class(info.getCollectionType());
         }
-        
-        if (info.isArray()) {
-            valueType = type2Class(info.getComponentType());
-        }
+
         return get(info.getType(),valueType);
     }
     
