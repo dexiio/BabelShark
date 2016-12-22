@@ -56,6 +56,8 @@ public class JsonLanguage extends SharkLanguageBase {
             try {
                 JsonNode node = om.readTree(json);
                 return jsonToShark(node);
+            } catch (IOException ex) {
+                throw ex;
             } catch (Throwable ex) {
                 throw new IOException(IOUtils.toString(input.getStream(), "UTF-8"),ex);
             }
