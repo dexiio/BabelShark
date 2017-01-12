@@ -15,7 +15,7 @@ public class ObjectNodeUtils {
     private static BabelSharkInstance bs = BabelShark.getDefaultInstance();
 
     /**
-     * Get a value in {@param values} from a path:
+     * Get a {@code value} in {@code values} from a {@code path}:
      * <ul>
      *     <li>Simple path, e.g. "path"</li>
      *     <li>Object (complex) path, e.g. "path/to/value"</li>
@@ -89,15 +89,13 @@ public class ObjectNodeUtils {
     }
 
     /**
-     * Set a value in {@param values} on a path:
+     * Set a {@code value} in {@code values} on a {@code path}:
      * <ul>
      *     <li>Simple path, e.g. "path"</li>
      *     <li>Object (complex) path, e.g. "path/to/value"</li>
      * </ul>
      *
      * The value itself can be a simple value or an object.
-     *
-     * NB! The method is recursive.
      *
      * @param values
      * @param path
@@ -150,10 +148,8 @@ public class ObjectNodeUtils {
      * @param columnMapping
      * @return the mapped values
      */
-    // TODO: use for "Data set A/B column mapping for RL?
     public static Map<String, SharkNode> mapColumns(Map<String, SharkNode> values, Map<String, String>
             columnMapping) {
-        // No mapping available
         if (columnMapping == null) {
             return values;
         }

@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.vonhof.babelshark.ObjectNodeUtils.getValueFromPath;
 import static org.junit.Assert.*;
 
 public class ObjectNodeUtilsTest {
@@ -24,16 +25,16 @@ public class ObjectNodeUtilsTest {
 
     @Test
     public void can_get_value_from_path_with_no_values_and_simple_paths() {
-        SharkNode actualValue = ObjectNodeUtils.getValueFromPath(values, "");
+        SharkNode actualValue = getValueFromPath(values, "");
         assertNull(actualValue);
 
-        actualValue = ObjectNodeUtils.getValueFromPath(values, "path");
+        actualValue = getValueFromPath(values, "path");
         assertNull(actualValue);
 
-        actualValue = ObjectNodeUtils.getValueFromPath(values, "path/");
+        actualValue = getValueFromPath(values, "path/");
         assertNull(actualValue);
 
-        actualValue = ObjectNodeUtils.getValueFromPath(values, "/");
+        actualValue = getValueFromPath(values, "/");
         assertNull(actualValue);
     }
 
@@ -42,16 +43,16 @@ public class ObjectNodeUtilsTest {
         String path = "path";
         values.put(path, new ValueNode<>(simpleValue));
 
-        ValueNode actualValue = (ValueNode) ObjectNodeUtils.getValueFromPath(values, "");
+        ValueNode actualValue = (ValueNode) getValueFromPath(values, "");
         assertNull(actualValue);
 
-        actualValue = (ValueNode) ObjectNodeUtils.getValueFromPath(values, "/");
+        actualValue = (ValueNode) getValueFromPath(values, "/");
         assertNull(actualValue);
 
-        actualValue = (ValueNode) ObjectNodeUtils.getValueFromPath(values, path);
+        actualValue = (ValueNode) getValueFromPath(values, path);
         assertEquals(simpleValue, actualValue.getValue());
 
-        actualValue = (ValueNode) ObjectNodeUtils.getValueFromPath(values, path + "/");
+        actualValue = (ValueNode) getValueFromPath(values, path + "/");
         assertEquals(simpleValue, actualValue.getValue());
     }
 
@@ -61,7 +62,7 @@ public class ObjectNodeUtilsTest {
         objectValue.put("to", simpleValue);
         values.put("path", objectValue);
 
-        ValueNode actualValue = (ValueNode) ObjectNodeUtils.getValueFromPath(values, "path/to");
+        ValueNode actualValue = (ValueNode) getValueFromPath(values, "path/to");
         assertEquals(simpleValue, actualValue.getValue());
     }
 
@@ -71,7 +72,7 @@ public class ObjectNodeUtilsTest {
         objectValue.put("to", simpleValue);
         values.put("path", objectValue);
 
-        ObjectNode actualValue = (ObjectNode) ObjectNodeUtils.getValueFromPath(values, "path");
+        ObjectNode actualValue = (ObjectNode) getValueFromPath(values, "path");
         ValueNode toValue = (ValueNode) actualValue.get("to");
         assertEquals(simpleValue, toValue.getValue());
     }
@@ -86,10 +87,10 @@ public class ObjectNodeUtilsTest {
 
         values.put("path", toValue);
 
-        ValueNode actualValue = (ValueNode) ObjectNodeUtils.getValueFromPath(values, "path/to/value");
+        ValueNode actualValue = (ValueNode) getValueFromPath(values, "path/to/value");
         assertEquals(simpleValue, actualValue.getValue());
 
-        actualValue = (ValueNode) ObjectNodeUtils.getValueFromPath(values, "path/to/value/");
+        actualValue = (ValueNode) getValueFromPath(values, "path/to/value/");
         assertEquals(simpleValue, actualValue.getValue());
     }
 
@@ -172,6 +173,83 @@ public class ObjectNodeUtilsTest {
         ObjectNode toNode = pathNode.getObject("to");
         ObjectNode actualExistingFieldNode = (ObjectNode) toNode.get("existingField");
         assertEquals(nodeToOverwriteExistingField, actualExistingFieldNode);
+    }
+
+    @Test
+    public void can_map_columns_no_mapping() {
+        ObjectNode values = new ObjectNode();
+        String fieldName = "simpleField";
+        ObjectNodeUtils.setValueFromPath(values, fieldName, new ValueNode<>(simpleValue));
+
+        Map<String, SharkNode> mappedValues = ObjectNodeUtils.mapColumns(values.toMap(), null);
+        assertNotNull(mappedValues);
+        ValueNode actualValue = (ValueNode) getValueFromPath(mappedValues, fieldName);
+        assertEquals(simpleValue, actualValue.getValue());
+    }
+
+    @Test
+    public void can_map_columns_simple_to_simple() {
+        ObjectNode values = new ObjectNode();
+        String sourceFieldName = "simpleField";
+        ObjectNodeUtils.setValueFromPath(values, sourceFieldName, new ValueNode<>(simpleValue));
+
+        Map<String, String> columnMapping = new HashMap<>();
+        String targetFieldName = "anotherSimpleField";
+        columnMapping.put(sourceFieldName, targetFieldName);
+
+        Map<String, SharkNode> mappedValues = ObjectNodeUtils.mapColumns(values.toMap(), columnMapping);
+        assertNotNull(mappedValues);
+
+        ValueNode actualValue = (ValueNode) getValueFromPath(mappedValues, targetFieldName);
+        assertEquals(simpleValue, actualValue.getValue());
+    }
+
+    @Test
+    public void can_map_columns_simple_to_object() {
+        ObjectNode values = new ObjectNode();
+        String sourceFieldName = "simpleField";
+        ObjectNodeUtils.setValueFromPath(values, sourceFieldName, new ValueNode<>(simpleValue));
+
+        Map<String, String> columnMapping = new HashMap<>();
+        String targetFieldName = "path/to/objectField";
+        columnMapping.put(sourceFieldName, targetFieldName);
+
+        Map<String, SharkNode> mappedValues = ObjectNodeUtils.mapColumns(values.toMap(), columnMapping);
+        assertNotNull(mappedValues);
+        ValueNode actualValue = (ValueNode) getValueFromPath(mappedValues, targetFieldName);
+        assertEquals(simpleValue, actualValue.getValue());
+    }
+
+    @Test
+    public void can_map_columns_object_to_simple() {
+        ObjectNode values = new ObjectNode();
+        String sourceFieldName = "path/to/objectField";
+        ObjectNodeUtils.setValueFromPath(values, sourceFieldName, new ValueNode<>(simpleValue));
+
+        Map<String, String> columnMapping = new HashMap<>();
+        String targetFieldName = "simpleField";
+        columnMapping.put(sourceFieldName, targetFieldName);
+
+        Map<String, SharkNode> mappedValues = ObjectNodeUtils.mapColumns(values.toMap(), columnMapping);
+        assertNotNull(mappedValues);
+        ValueNode actualValue = (ValueNode) getValueFromPath(mappedValues, targetFieldName);
+        assertEquals(simpleValue, actualValue.getValue());
+    }
+
+    @Test
+    public void can_map_columns_object_to_object() {
+        ObjectNode values = new ObjectNode();
+        String sourceFieldName = "path/to/objectField";
+        ObjectNodeUtils.setValueFromPath(values, sourceFieldName, new ValueNode<>(simpleValue));
+
+        Map<String, String> columnMapping = new HashMap<>();
+        String targetFieldName = "path/to/anotherObjectField";
+        columnMapping.put(sourceFieldName, targetFieldName);
+
+        Map<String, SharkNode> mappedValues = ObjectNodeUtils.mapColumns(values.toMap(), columnMapping);
+        assertNotNull(mappedValues);
+        ValueNode actualValue = (ValueNode) getValueFromPath(mappedValues, targetFieldName);
+        assertEquals(simpleValue, actualValue.getValue());
     }
 
 }

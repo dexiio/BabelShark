@@ -163,4 +163,8 @@ public final class ObjectNode extends SharkNode {
             this.fields.remove(field);
         }
     }
+
+    public Map<String, SharkNode> toMap() {
+        return new HashMap<>(fields);
+    }
 }
