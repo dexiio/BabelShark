@@ -15,13 +15,13 @@ public class ObjectNodeUtils {
     private static BabelSharkInstance bs = BabelShark.getDefaultInstance();
 
     /**
-     * Get a value from a path:
+     * Get a value in {@param values} from a path:
      * <ul>
      *     <li>Simple path, e.g. "path"</li>
      *     <li>Object (complex) path, e.g. "path/to/value"</li>
      * </ul>
      *
-     * The value itself can be simple an object.
+     * The value itself can be a simple value or an object.
      *
      * NB! The method is recursive.
      *
@@ -30,7 +30,7 @@ public class ObjectNodeUtils {
      * @return the value identified by the path
      */
     public static SharkNode getValueFromPath(Map<String, SharkNode> values, String path) {
-        if (values == null || MapUtils.isEmpty(values) || path == null || StringUtils.isEmpty(path)) {
+        if (values == null || MapUtils.isEmpty(values) || StringUtils.isEmpty(path)) {
             return null;
         }
 
@@ -58,7 +58,7 @@ public class ObjectNodeUtils {
             }
         }
 
-        // path = "/"
+        // Handle path = "/"
         if (StringUtils.isEmpty(firstPart)) {
             return null;
         }
@@ -89,24 +89,34 @@ public class ObjectNodeUtils {
     }
 
     /**
-     * Recursive method to set a value on a "complex"/object path in target row values.
+     * Set a value in {@param values} on a path:
+     * <ul>
+     *     <li>Simple path, e.g. "path"</li>
+     *     <li>Object (complex) path, e.g. "path/to/value"</li>
+     * </ul>
      *
-     * @param targetRowValues
+     * The value itself can be a simple value or an object.
+     *
+     * NB! The method is recursive.
+     *
+     * @param values
      * @param path
      * @param value
      */
-    public static void setValueFromPath(ObjectNode targetRowValues, String path, SharkNode value) {
-        if (!path.contains("/")) {
-            targetRowValues.put(path, value);
+    public static void setValueFromPath(ObjectNode values, String path, SharkNode value) {
+        if (values == null || StringUtils.isEmpty(path)) {
             return;
         }
+
+        if (!path.contains("/")) {
+            values.put(path, value);
+            return;
+        }
+
+        // Skip empty parts
         String[] rawParts = path.split("/");
-
         List<String> parts = new ArrayList<>();
-
         for(int i = 0; i < rawParts.length; i++) {
-
-            //Skip empty parts
             if (StringUtils.isEmpty(rawParts[i])) {
                 continue;
             }
@@ -119,43 +129,39 @@ public class ObjectNodeUtils {
             String part = parts.get(i);
 
             if (isLast) {
-                targetRowValues.put(part, value);
+                values.put(part, value);
             } else {
-                if (targetRowValues.get(part) == null) {
-                    targetRowValues.put(part, new ObjectNode());
+                // Encountering the first field of the object will create the "container" object
+                if (!(values.get(part) instanceof ObjectNode)) {
+                    values.put(part, new ObjectNode());
                 }
 
-                SharkNode testNode = targetRowValues.get(part);
+                SharkNode testNode = values.get(part);
 
-                if (!testNode.is(SharkNode.NodeType.MAP)) {
-                    return; //Unable to set child value of a non-map
-                }
-
-                targetRowValues = (ObjectNode) testNode;
+                values = (ObjectNode) testNode;
             }
         }
     }
 
     /**
-     * Map values of columns in {@param sourceRowValues} using {@param columnMapping}.
+     * Map values of columns in {@param values} using {@param columnMapping}.
      *
-     * @param sourceRowValues
+     * @param values
      * @param columnMapping
      * @return the mapped values
      */
     // TODO: use for "Data set A/B column mapping for RL?
-    public static Map<String, SharkNode> mapColumns(Map<String, SharkNode> sourceRowValues, Map<String, String>
+    public static Map<String, SharkNode> mapColumns(Map<String, SharkNode> values, Map<String, String>
             columnMapping) {
-
-        //No mapping available
+        // No mapping available
         if (columnMapping == null) {
-            return sourceRowValues;
+            return values;
         }
 
         ObjectNode result = new ObjectNode();
         for (String sourceColumnName : columnMapping.keySet()) {
             String targetColumnName = columnMapping.get(sourceColumnName);
-            SharkNode rowValue = getValueFromPath(sourceRowValues, sourceColumnName);
+            SharkNode rowValue = getValueFromPath(values, sourceColumnName);
             if (targetColumnName != null && rowValue != null) {
                 setValueFromPath(result, targetColumnName, rowValue);
             }
