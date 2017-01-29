@@ -1,6 +1,7 @@
 package com.vonhof.babelshark.reflect;
 
 import com.vonhof.babelshark.annotation.Name;
+import com.vonhof.babelshark.node.ObjectNode;
 import com.vonhof.babelshark.node.SharkType;
 import com.vonhof.babelshark.reflect.MethodInfo.Parameter;
 
@@ -26,7 +27,12 @@ public class ClassInfoTest extends TestCase {
         super(testName);
         
         SharkType<ExtendedGenericBean, ?> type = SharkType.get(ExtendedGenericBean.class);
-        
+    }
+
+    public void test_can_read_map_interface() throws Exception {
+        ClassInfo<Map> from = ClassInfo.from(Map.class);
+        assertEquals(Object.class, from.getMapKeyType());
+        assertEquals(Object.class, from.getMapValueType());
     }
 
     public void test_can_read_generic_list() throws Exception {

@@ -136,7 +136,7 @@ public final class ClassInfo<T> {
         return false;
     }
 
-    private void makeReady() {
+    private synchronized void makeReady() {
         if (isScalaType() || ready) {
             return;
         }
@@ -552,7 +552,7 @@ public final class ClassInfo<T> {
         if (this.getMethod("keySet") != null &&
                 this.getMethod("keySet").getReturnClassInfo() != null) {
             Type[] types = this.getMethod("keySet").getReturnClassInfo().getGenericTypes();
-            if (types != null && types.length > 0) {
+            if (types != null && types.length > 0 && types[0] instanceof Class) {
                 return types[0];
             }
         }
@@ -580,7 +580,7 @@ public final class ClassInfo<T> {
         if (this.getMethod("values") != null &&
                 this.getMethod("values").getReturnClassInfo() != null) {
             Type[] types = this.getMethod("values").getReturnClassInfo().getGenericTypes();
-            if (types != null && types.length > 0) {
+            if (types != null && types.length > 0 && types[0] instanceof Class) {
                 return types[0];
             }
         }
