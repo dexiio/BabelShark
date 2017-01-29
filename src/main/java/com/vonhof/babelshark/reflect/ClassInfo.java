@@ -558,9 +558,12 @@ public final class ClassInfo<T> {
             return getGenericTypes()[1];
         }
 
-        Type[] types = this.getMethod("values").getReturnClassInfo().getGenericTypes();
-        if (types != null && types.length > 0) {
-            return types[0];
+        if (this.getMethod("values") != null &&
+                this.getMethod("values").getReturnClassInfo() != null) {
+            Type[] types = this.getMethod("values").getReturnClassInfo().getGenericTypes();
+            if (types != null && types.length > 0) {
+                return types[0];
+            }
         }
 
         return Object.class;
