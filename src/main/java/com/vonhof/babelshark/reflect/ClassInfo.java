@@ -1,6 +1,7 @@
 package com.vonhof.babelshark.reflect;
 
 import com.vonhof.babelshark.ReflectUtils;
+import com.vonhof.babelshark.annotation.MapValueType;
 import org.apache.log4j.Logger;
 
 import java.lang.annotation.Annotation;
@@ -33,7 +34,7 @@ public final class ClassInfo<T> {
         ClassInfo classInfo = new ClassInfo(type);
         synchronized (classInfo) {
             cache.put(hash, classInfo);
-            classInfo.read();
+            classInfo.makeReady();
             return classInfo;
         }
     }
@@ -53,7 +54,7 @@ public final class ClassInfo<T> {
         }
         ClassInfo classInfo = new ClassInfo(type, genTypes);
         cache.put(hash, classInfo);
-        classInfo.read();
+        classInfo.makeReady();
         return classInfo;
     }
 
@@ -65,7 +66,7 @@ public final class ClassInfo<T> {
         }
         ClassInfo classInfo = new ClassInfo(type, genericType);
         cache.put(hash, classInfo);
-        classInfo.read();
+        classInfo.makeReady();
         return classInfo;
     }
 
@@ -135,8 +136,8 @@ public final class ClassInfo<T> {
         return false;
     }
 
-    private void read() {
-        if (isScalaType()) {
+    private void makeReady() {
+        if (isScalaType() || ready) {
             return;
         }
 
@@ -396,6 +397,9 @@ public final class ClassInfo<T> {
     }
 
     public MethodInfo getMethod(String name, ClassInfo... args) {
+
+        makeReady();
+
         for (MethodInfo m : methods) {
             if (m.getName().equalsIgnoreCase(name) && m.hasParmTypes(args)) {
                 return m;
@@ -405,6 +409,8 @@ public final class ClassInfo<T> {
     }
 
     public MethodInfo getMethodByClassParms(String name, Class... args) {
+        makeReady();
+
         for (MethodInfo m : methods) {
             if (m.getName().equalsIgnoreCase(name) && m.hasParmTypes(args)) {
                 return m;
@@ -537,13 +543,18 @@ public final class ClassInfo<T> {
             return Object.class;
         }
 
+        makeReady();
+
         if (getGenericTypes().length == 2) {
             return getGenericTypes()[0];
         }
 
-        Type[] types = this.getMethod("keySet").getReturnClassInfo().getGenericTypes();
-        if (types != null && types.length > 0) {
-            return types[0];
+        if (this.getMethod("keySet") != null &&
+                this.getMethod("keySet").getReturnClassInfo() != null) {
+            Type[] types = this.getMethod("keySet").getReturnClassInfo().getGenericTypes();
+            if (types != null && types.length > 0) {
+                return types[0];
+            }
         }
 
         return Object.class;
@@ -552,6 +563,14 @@ public final class ClassInfo<T> {
     public Type getMapValueType() {
         if (!isMap()) {
             return Object.class;
+        }
+
+        makeReady();
+
+        MapValueType annotation = getAnnotation(MapValueType.class);
+        if (annotation != null &&
+                annotation.value() != null) {
+            return annotation.value();
         }
 
         if (getGenericTypes().length == 2) {
