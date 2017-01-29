@@ -400,7 +400,7 @@ public final class ClassInfo<T> {
 
         makeReady();
 
-        for (MethodInfo m : methods) {
+        for (MethodInfo m : getMethods()) {
             if (m.getName().equalsIgnoreCase(name) && m.hasParmTypes(args)) {
                 return m;
             }
@@ -411,7 +411,7 @@ public final class ClassInfo<T> {
     public MethodInfo getMethodByClassParms(String name, Class... args) {
         makeReady();
 
-        for (MethodInfo m : methods) {
+        for (MethodInfo m : getMethods()) {
             if (m.getName().equalsIgnoreCase(name) && m.hasParmTypes(args)) {
                 return m;
             }
