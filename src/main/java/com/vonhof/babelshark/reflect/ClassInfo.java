@@ -336,14 +336,16 @@ public final class ClassInfo<T> {
                     continue;
                 }
 
-                for (MethodInfo oldM : methods) {
-                    if (oldM.isOverrideOf(m)) {
-                        continue methodLoop;
+                synchronized (methods) {
+                    for (MethodInfo oldM : methods) {
+                        if (oldM.isOverrideOf(m)) {
+                            continue methodLoop;
+                        }
                     }
-                }
 
-                uniqueMethods.add(signature);
-                methods.add(method);
+                    uniqueMethods.add(signature);
+                    methods.add(method);
+                }
             }
 
             clz = clz.getSuperclass();
