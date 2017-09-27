@@ -5,7 +5,7 @@
 
     <groupId>com.vonhof</groupId>
     <artifactId>babelshark</artifactId>
-    <version>1.8.5</version>
+    <version>1.8.6</version>
     <packaging>jar</packaging>
 
     <name>babelshark</name>
@@ -13,14 +13,14 @@
 
     <distributionManagement>
         <repository>
-            <id>nexus</id>
+            <id>central</id>
             <name>Releases</name>
-            <url>${nexus.url}</url>
+            <url>https://dexi.jfrog.io/dexi/libs-release</url>
         </repository>
         <snapshotRepository>
-            <id>nexus</id>
+            <id>snapshots</id>
             <name>Snapshots</name>
-            <url>${nexus.snapshots}</url>
+            <url>https://dexi.jfrog.io/dexi/libs-snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
