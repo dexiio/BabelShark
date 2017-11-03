@@ -35,9 +35,7 @@ public class DefaultBeanMapper implements BeanMapper {
         }
         
         obj = new MappedBean(type);
-        
-        
-        
+
         for(Entry<String,FieldInfo> entry:type.getFields().entrySet()) {
             FieldInfo f = entry.getValue();
             if (ignoreField(f)) 
@@ -86,7 +84,7 @@ public class DefaultBeanMapper implements BeanMapper {
         String name = ucFirst(field.getName());
         String setterName = "set"+name;
         try {
-            MethodInfo method = type.getMethodByClassParms(setterName, field.getType());
+            MethodInfo method = type.getMethodByClassParms(setterName, field.getClassInfo().getType());
             if (!method.hasAnnotation(Ignore.class))
                 return method;
         } catch (Exception ex) {

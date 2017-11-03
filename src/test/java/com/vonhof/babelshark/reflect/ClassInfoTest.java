@@ -23,12 +23,6 @@ public class ClassInfoTest extends TestCase {
     private final ClassInfo crazyBeanInfo = ClassInfo.from(CrazyBean.class);
     private final ClassInfo extendedCrazyBeanInfo = ClassInfo.from(ExtendedCrazyBean.class);
 
-    public ClassInfoTest(String testName) {
-        super(testName);
-        
-        SharkType<ExtendedGenericBean, ?> type = SharkType.get(ExtendedGenericBean.class);
-    }
-
     public void test_can_read_map_interface() throws Exception {
         ClassInfo<Map> from = ClassInfo.from(Map.class);
         assertEquals(Object.class, from.getMapKeyType());

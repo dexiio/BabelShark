@@ -12,26 +12,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  *
  * @author Henrik Hofmeister <@vonhofdk>
  */
-public class DefaultBeanMapperTest extends TestCase {
-    
-    public DefaultBeanMapperTest(String testName) {
-        super(testName);
-    }
-    
+public class DefaultBeanMapperTest {
+
     private final ClassInfo type = ClassInfo.from(TestClass.class);
     private final DefaultBeanMapper instance = new DefaultBeanMapper();
     
     private MappedBean expResult;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         expResult = new MappedBean(type.getType());
         expResult.addField("_id", type.getField("id"),type.getMethod("getId"), type.getMethodByClassParms("setId",String.class));
         expResult.addField("name", type.getField("name"),type.getMethod("getName"), type.getMethodByClassParms("setName",String.class));
@@ -39,69 +37,90 @@ public class DefaultBeanMapperTest extends TestCase {
         expResult.addField("fields", type.getField("fields"),type.getMethod("getFields"), type.getMethodByClassParms("setFields",Map.class));        
     }
 
-    public void testIgnoreField() throws Exception {
+    @Test
+    public void can_ignore_field() throws Exception {
         FieldInfo ignoredField = type.getField("ignoredField");
         boolean result = instance.ignoreField(ignoredField);
         assertEquals(true, result);
     }
-    
-    public void testCanGetFieldName() throws Exception {
+
+    @Test
+    public void can_get_fieldname() throws Exception {
         FieldInfo nameField = type.getField("name");
         String result = instance.getFieldName(nameField);
         assertEquals("name", result);
     }
-    
-    public void testCanOverrideFieldName() throws Exception {
+
+    @Test
+    public void can_override_fieldname() throws Exception {
         FieldInfo idField = type.getField("id");
         String result = instance.getFieldName(idField);
         assertEquals("_id", result);
     }
-    
-    public void testCanGetListType() throws Exception {
+
+    @Test
+    public void can_get_list_type() throws Exception {
         MappedBean map = instance.getMap(type);
         ObjectField subsField = map.getField("subs");
         assertEquals(SharkType.forCollection(List.class,TestClass.class),subsField.getType());
     }
-    
-    public void testCanGetMapType() throws Exception {
+
+    @Test
+    public void can_get_map_type() throws Exception {
         MappedBean map = instance.getMap(type);
         ObjectField subsField = map.getField("fields");
         assertEquals(SharkType.forMap(Map.class,TestClass.class),subsField.getType());
     }
 
-    public void testCanGetBeanGetter() throws Exception {
+    @Test
+    public void cab_get_bean_getter_method() throws Exception {
         FieldInfo idField = type.getField("id");
         MethodInfo expGetter = type.getMethod("getId");
         MethodInfo getter = instance.getGetter(type,idField);
         assertEquals(expGetter, getter);
     }
-    
-    public void testCanGetPublicGetter() throws Exception {
+
+    @Test
+    public void can_get_public_getter_method() throws Exception {
         FieldInfo childrenField = type.getField("children");
         MethodInfo getter = instance.getGetter(type, childrenField);
         assertNull(getter);
     }
-    
-    public void testCanGetBeanSetter() throws Exception {
+
+    @Test
+    public void can_get_bean_setter_method() throws Exception {
         FieldInfo idField = type.getField("id");
         MethodInfo expSetter = type.getMethodByClassParms("setId",String.class);
         MethodInfo setter = instance.getSetter(type, idField);
         assertEquals(expSetter, setter);
     }
-    
-    public void testCanGetPublicSetter() throws Exception {
+
+    @Test
+    public void cab_get_public_setter_method() throws Exception {
         FieldInfo childrenField = type.getField("children");
         MethodInfo setter = instance.getSetter(type, childrenField);
         assertNull(setter);
     }
-    
-    public void testMapping() throws Exception {
+
+    @Test
+    public void can_map_type() throws Exception {
         MappedBean result = instance.getMap(type.getType());
         assertEquals(expResult, result);
     }
 
+    @Test
+    public void can_map_generic_fields_from_class() throws Exception {
 
-    
+        MappedBean result = instance.getMap(ImplementedGenericTestClass.class);
+
+        ObjectField genProperty = result.getField("genProperty");
+
+        assertNotNull(genProperty);
+        assertTrue(genProperty.hasSetter());
+        assertTrue(genProperty.hasGetter());
+
+    }
+
     @Name("test")
     public static class TestClass {
         private String name;
@@ -157,6 +176,32 @@ public class DefaultBeanMapperTest extends TestCase {
 
         public void setFields(Map<String, TestClass> fields) {
             this.fields = fields;
+        }
+    }
+
+    public static class GenericTestClass<T> {
+        private T genProperty;
+
+        public GenericTestClass(T genProperty) {
+            this.genProperty = genProperty;
+        }
+
+        public GenericTestClass() {
+        }
+
+        public T getGenProperty() {
+            return genProperty;
+        }
+
+        public void setGenProperty(T genProperty) {
+            this.genProperty = genProperty;
+        }
+    }
+
+    public static class ImplementedGenericTestClass extends GenericTestClass<TestClass> {
+
+        public ImplementedGenericTestClass() {
+            super(new TestClass());
         }
     }
 }

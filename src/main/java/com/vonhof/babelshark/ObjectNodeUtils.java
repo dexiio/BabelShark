@@ -7,6 +7,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -148,8 +149,7 @@ public class ObjectNodeUtils {
      * @param columnMapping
      * @return the mapped values
      */
-    public static Map<String, SharkNode> mapColumns(Map<String, SharkNode> values, Map<String, String>
-            columnMapping) {
+    public static Map<String, SharkNode> mapColumns(Map<String, SharkNode> values, Map<String, String> columnMapping) {
         if (columnMapping == null) {
             return values;
         }
@@ -164,6 +164,17 @@ public class ObjectNodeUtils {
         }
 
         return bs.convert(result, SharkType.forMap(Map.class, SharkNode.class));
+    }
+
+
+    public static Map<String, SharkNode> mapColumns(SharkNode node, Map<String, String> columnMapping) {
+        if (!node.is(SharkNode.NodeType.MAP)) {
+            return new HashMap<>();
+        }
+
+        ObjectNode objectNode = (ObjectNode) node;
+
+        return mapColumns(objectNode.toMap(), columnMapping);
     }
 
 }

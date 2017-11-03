@@ -25,7 +25,7 @@ import java.util.*;
 public final class BabelSharkInstance {
     private final static Logger log = Logger.getLogger(BabelSharkInstance.class);
 
-    private final Map<String, SharkLanguage> languages = new HashMap<String, SharkLanguage>();
+    private final Map<String, SharkLanguage> languages = new HashMap<>();
     private final Map<String, ObjectReader> readers = new HashMap<String, ObjectReader>();
     private final Map<String, ObjectWriter> writers = new HashMap<String, ObjectWriter>();
     private final TypeRegistry<SharkSerializer> serializers = new TypeRegistry<SharkSerializer>();
