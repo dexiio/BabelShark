@@ -8,6 +8,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -16,7 +17,7 @@ import java.util.Map.Entry;
 public final class ClassInfo<T> {
     private final static Logger log = Logger.getLogger(ClassInfo.class);
 
-    private final static Map<Integer, ClassInfo> cache = new HashMap<Integer, ClassInfo>();
+    private final static Map<Integer, ClassInfo> cache = new ConcurrentHashMap<>();
 
     public static <T> ClassInfo<T> from(Class<T> type) {
         int hash = hash(type);
