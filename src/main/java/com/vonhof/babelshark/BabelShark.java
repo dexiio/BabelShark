@@ -17,15 +17,17 @@ public class BabelShark {
 
     private static final BabelSharkInstance instance = new BabelSharkInstance();
 
-    
-
     private BabelShark() {
     }
 
     public static BabelSharkInstance getDefaultInstance() {
         return instance;
     }
-    
+
+    public static void register(SharkLanguage language, boolean useAsDefault) {
+        instance.register(language, useAsDefault);
+    }
+
     public static void register(SharkLanguage language) {
         instance.register(language);
     }

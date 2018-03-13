@@ -25,6 +25,7 @@ import java.util.*;
 public final class BabelSharkInstance {
     private final static Logger log = Logger.getLogger(BabelSharkInstance.class);
 
+    private SharkLanguage defaultLanguage;
     private final Map<String, SharkLanguage> languages = new HashMap<>();
     private final Map<String, ObjectReader> readers = new HashMap<String, ObjectReader>();
     private final Map<String, ObjectWriter> writers = new HashMap<String, ObjectWriter>();
@@ -59,6 +60,10 @@ public final class BabelSharkInstance {
     }
 
     public void register(SharkLanguage language) {
+        register(language, false);
+    }
+
+    public void register(SharkLanguage language, boolean useAsDefault) {
         final ObjectReader reader = language.getObjectReader();
         final ObjectWriter writer = language.getObjectWriter();
 
@@ -73,6 +78,10 @@ public final class BabelSharkInstance {
         writers.put(language.getId(), writer);
 
         languages.put(language.getId(), language);
+
+        if (defaultLanguage == null || useAsDefault) {
+            defaultLanguage = language;
+        }
     }
     
     public <T> void registerSimple(SharkConverter<T> converter) {
@@ -131,6 +140,9 @@ public final class BabelSharkInstance {
     }
 
     public String getDefaultType() {
+        if (defaultLanguage != null) {
+            return defaultLanguage.getId();
+        }
         if (!languages.isEmpty()) {
             return languages.keySet().
                     iterator().
