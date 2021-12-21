@@ -1,6 +1,7 @@
 package com.vonhof.babelshark;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -12,7 +13,7 @@ import java.io.UnsupportedEncodingException;
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public class Input {
-    private final static Logger log = Logger.getLogger(Input.class);
+    private final static Logger log = LogManager.getLogger(Input.class);
     private final InputStream input;
     private final String contentType;
     

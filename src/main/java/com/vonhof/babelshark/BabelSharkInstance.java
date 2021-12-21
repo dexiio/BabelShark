@@ -8,7 +8,8 @@ import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
 import com.vonhof.babelshark.node.ValueNode;
 import com.vonhof.babelshark.reflect.ClassInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.util.*;
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public final class BabelSharkInstance {
-    private final static Logger log = Logger.getLogger(BabelSharkInstance.class);
+    private final static Logger log = LogManager.getLogger(BabelSharkInstance.class);
 
     private SharkLanguage defaultLanguage;
     private final Map<String, SharkLanguage> languages = new HashMap<>();

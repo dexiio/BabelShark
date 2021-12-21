@@ -2,7 +2,8 @@ package com.vonhof.babelshark.reflect;
 
 import com.vonhof.babelshark.ReflectUtils;
 import com.vonhof.babelshark.annotation.MapValueType;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -15,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Henrik Hofmeister <@vonhofdk>
  */
 public final class ClassInfo<T> {
-    private final static Logger log = Logger.getLogger(ClassInfo.class);
+    private final static Logger log = LogManager.getLogger(ClassInfo.class);
 
     private final static Map<Integer, ClassInfo> cache = new ConcurrentHashMap<>();
 

@@ -7,7 +7,7 @@ import com.vonhof.babelshark.exception.MappingException;
 import com.vonhof.babelshark.node.ArrayNode;
 import com.vonhof.babelshark.node.SharkNode;
 import com.vonhof.babelshark.node.SharkType;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Array;
 import java.util.*;
